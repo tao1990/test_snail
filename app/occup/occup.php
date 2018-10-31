@@ -10,11 +10,12 @@ $ac = empty($_GET['ac'])? '':addslashes($_GET['ac']);
 
 
 /**
- * @SWG\Get(path="/app/ad/ad.php?ac=list", tags={"ad"},
- *   summary="获取广告列表",
+ * @SWG\Get(path="/app/occup/occup.php?ac=list", tags={"occup"},
+ *   summary="获取招聘求职列表",
  *   description="",
- *   @SWG\Parameter(name="ad_type", type="string", required=true, in="query",example="INDEX|MINE"
- *   ),
+ *   @SWG\Parameter(name="type", type="string", required=true, in="query",example="FUULTIME|PARTTIME|FIND"),
+ *   @SWG\Parameter(name="page", type="integer", required=true, in="query",example="1"),
+ *   @SWG\Parameter(name="pageCount", type="integer", required=true, in="query",example="10"),
  * @SWG\Response(
  *   response=200,
  *   description="ok response",
@@ -26,21 +27,25 @@ $ac = empty($_GET['ac'])? '':addslashes($_GET['ac']);
  * )
  */
 if($ac == 'list'){
-  $ad_type = empty($_GET['ad_type'])? '':addslashes($_GET['ad_type']);
-  if(!$ad_type){
+  $type = empty($_GET['type'])? '':addslashes($_GET['type']);
+  $page = isset($_GET['page'])?$_GET['page']:1;
+  $pageCount = $_GET['pageCount'];
+  if(!in_array($type,array('FIND','FULLTIME','PARTTIME')) || !$page || !$pageCount){
     header('HTTP/1.1 400 ERROR');
-    echo json_encode ( array('status'=>400, 'msg'=>'缺少参数') );exit();
+    echo json_encode ( array('status'=>400, 'msg'=>'参数错误') );exit();
   }else{
-    $list = getAdListByType($ad_type);
-    header('HTTP/1.1 200 OK');
-    echo json_encode ( array('status'=>200, 'data'=>$list) );exit();
+    $list = getOccupListByType($type,$page,$pageCount);
+    if($list){
+        header('HTTP/1.1 200 OK');
+        echo json_encode ( array('status'=>200, 'data'=>array('total'=>$list['total'],'list'=>$list['list'])) );exit();
+    }
   }
 }
 
 
 /**
- * @SWG\Post(path="/app/ad/ad.php?ac=create", tags={"ad"},
- *   summary="创建广告",
+ * @SWG\Post(path="/app/occup/occup.php?ac=create", tags={"occup"},
+ *   summary="创建求职招聘未实现",
  *   description="",
  *   @SWG\Parameter(name="body", type="string", required=true, in="formData",
  *     description="body" ,example = "{	'ad_name':'首页广告02',	'ad_img':'/upload/20181031/33d2360b6fb024e170425f9ce57a14c1.jpg',	'ad_remark':'test',	'ad_type':'INDEX',	'ad_show':1}"
@@ -101,14 +106,30 @@ function createAd($arr){
   return $conn->query($sql);
 }
 
-function getAdListByType($type){
+function getOccupListByType($type,$page=1,$pageCount=10){
     global $conn;
     $list = array();
-    $sql="SELECT * from `snail_ad` WHERE ad_type = '".$type."';";
-    $result=$conn->query($sql);
-    while ($row = mysqli_fetch_assoc($result))
-    {
-        $list[] = $row;
+    $time = time();
+    $offset=($page-1)*$pageCount;
+    if($type == "FIND"){//找工作
+
+      $total = $conn->query("SELECT * from `snail_job_find` WHERE `show` = 1 AND `start_date` < $time AND `end_date` > $time;")->num_rows;
+      $sql="SELECT * from `snail_job_find` WHERE `show` = 1 AND `start_date` < $time AND `end_date` > $time limit $offset,$pageCount;";
+      $result=$conn->query($sql);
+      while ($row = mysqli_fetch_assoc($result))
+      {
+          $list[] = $row;
+      }
+        
+    }elseif($type == "FULLTIME" || $type == "PARTTIME"){ //全职兼职
+      $total = $conn->query("SELECT * from `snail_job_release` WHERE `show` = 1 AND `type` = '$type' AND `start_date` < $time AND `end_date` > $time;")->num_rows;
+      $sql="SELECT * from `snail_job_release` WHERE `show` = 1 AND `type` = '$type' AND `start_date` < $time AND `end_date` > $time limit $offset,$pageCount;";
+      $result=$conn->query($sql);
+      while ($row = mysqli_fetch_assoc($result))
+      {
+          $list[] = $row;
+      }
     }
-    return $list;
+
+    return array('total'=>$total,'list'=>$list);
 }
