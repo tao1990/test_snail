@@ -1,57 +1,87 @@
 <?php
 //ini_set("display_errors", "On");
 //error_reporting(E_ALL | E_STRICT);
+header ( "Content-type: text/html; charset=UTF-8" );
+require_once("conn_mysql.php");
 define("IMG_SITE","http://img.neotv.cn");
-define("CACHE_TIME",60);
-//新闻
-define("NEWS_ID",97);
-//视频
-define("VIDEO_ID",98);
-//现场图集
-define("IMG_ID",99);
-//赛区介绍
-define("ZONE_INTRO_ID",100);
-//决赛日程
-define("FINAL_SCHEDULE",117);
-//赛区地图
-define("MAP",118);
-//友情链接
-define("FLINK_1",106);
-define("FLINK_2",107);
-define("FLINK_3",108);
-define("FLINK_COMM_1",131);
-define("FLINK_COMM_2",127);
-//赛区公告
-define("ZONE_NOTICE_ID",122);
-//赛区场馆
-define("ZONE_VENUE_ID",123);
-//决赛详情
-define("FINAL_MATCH_ID",124);
-//预选赛详情
-define("PRE_MATCH_ID",125);
-//预选赛细则
-define("PRE_MATCH_DETAIL",126);
-//赛区进度
-define("ZONE_STEP",129);
-//对阵图
-define("VS_ID",130);
+define("ENCRY_KEY","snailkey2018");
 
 
-$zone_array = array("宁夏","云南","浙江","海南","吉林","深圳","青岛","山东","广西","陕西","厦门","黑龙江","重庆","辽宁","湖北","内蒙古","广东","四川","江苏","福建","河北","青海","山西","江西","湖南","上海");
 
-/*
-news:
-http://121.41.39.149:6664/news_list.php?page=1
-http://121.41.39.149:6664/news_list_rec.php
-http://121.41.39.149:6664/news_info.php?aid=396
-video:
-http://121.41.39.149:6664/video_list.php
-img:
-http://121.41.39.149:6664/img_list.php
-zone_intro:
-http://121.41.39.149:6664/zone_intro.php
-flink:
-http://121.41.39.149:6664/friend_link.php?zone=%E4%B8%8A%E6%B5%B7
-http://121.41.39.149:6664/map.php
-*/
+
+
+function tokenCreate($uid){
+    $str = $uid."#".time();
+    return encrypt($str,ENCRY_KEY);
+}
+/**
+ * token 验证
+ */
+function tokenVerify($token){
+  $token = "Yltqmm2VY2lsZ56a1";
+  $decryToken = decrypt($token,ENCRY_KEY);
+  $check = explode('#',$decryToken);
+  if(is_numeric($check[0])&& strlen($check[1])==10){
+    return true;
+  }else{
+    return false;
+  }
+}
+
+
+function encrypt($data, $key)
+{
+	$key	=	md5(md5($key));
+    $x		=	0;
+    $len	=	strlen($data);
+    $l		=	strlen($key);
+    $char   =   "";
+    $str    =   "";
+    for ($i = 0; $i < $len; $i++)
+    {
+        if ($x == $l) 
+        {
+        	$x = 0;
+        }
+        $char .= $key{$x};
+        $x++;
+    }
+    for ($i = 0; $i < $len; $i++)
+    {
+        $str .= chr(ord($data{$i}) + (ord($char{$i})) % 256);
+    }
+    return base64_encode($str);
+}
+
+function decrypt($data, $key)
+{
+	$key = md5(md5($key));
+    $x = 0;
+    $data = base64_decode($data);
+    $len = strlen($data);
+    $l = strlen($key);
+    $char   =   "";
+    $str    =   "";
+    for ($i = 0; $i < $len; $i++)
+    {
+        if ($x == $l) 
+        {
+        	$x = 0;
+        }
+        $char .= substr($key, $x, 1);
+        $x++;
+    }
+    for ($i = 0; $i < $len; $i++)
+    {
+        if (ord(substr($data, $i, 1)) < ord(substr($char, $i, 1)))
+        {
+            $str .= chr((ord(substr($data, $i, 1)) + 256) - ord(substr($char, $i, 1)));
+        }
+        else
+        {
+            $str .= chr(ord(substr($data, $i, 1)) - ord(substr($char, $i, 1)));
+        }
+    }
+    return $str;
+}
 ?>

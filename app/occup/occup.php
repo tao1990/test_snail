@@ -3,19 +3,18 @@
 header("Access-Control-Allow-Origin: *");
 header("Content-type: text/html; charset=utf-8");
 require_once("../comm/comm.php");
-require_once("../comm/conn_mysql.php");
 
 $ac = empty($_GET['ac'])? '':addslashes($_GET['ac']);
-//$m = empty($_GET['m'])? '':addslashes($_GET['m']);
+$token = empty($_GET['token'])? '':addslashes($_GET['token']);
 
 
 /**
  * @SWG\Get(path="/app/occup/occup.php?ac=list", tags={"occup"},
  *   summary="获取招聘求职列表",
  *   description="",
- *   @SWG\Parameter(name="type", type="string", required=true, in="query",example="FUULTIME|PARTTIME|FIND"),
- *   @SWG\Parameter(name="page", type="integer", required=true, in="query",example="1"),
- *   @SWG\Parameter(name="pageCount", type="integer", required=true, in="query",example="10"),
+ *   @SWG\Parameter(name="type", type="string", required=true, in="query",example = "FULLTIME|PARTTIME|FIND"),
+ *   @SWG\Parameter(name="page", type="integer", required=true, in="query",example = "1"),
+ *   @SWG\Parameter(name="pageCount", type="integer", required=true, in="query",example = "10"),
  * @SWG\Response(
  *   response=200,
  *   description="ok response",
@@ -61,27 +60,97 @@ if($ac == 'list'){
  * )
  */
 if($ac == 'create'){
+    
+  $token = empty($_GET['token'])? '':$_GET['token'];
   $bodyData = @file_get_contents('php://input');
   $bodyData = json_decode($bodyData,true);
-  $arr['ad_name']  = empty($bodyData['ad_name'])? '':$bodyData['ad_name'];
-  $arr['ad_img']   = empty($bodyData['ad_img'])? '':$bodyData['ad_img'];
-  $arr['ad_remark']= empty($bodyData['ad_remark'])? '':$bodyData['ad_remark'];
-  $arr['ad_type']  = empty($bodyData['ad_type'])? '':$bodyData['ad_type'];
-  $arr['ad_show']  = empty($bodyData['ad_show'])? '':$bodyData['ad_show'];
-  if(!$arr['ad_name'] || !$arr['ad_img'] || !$arr['ad_type']){
-    header('HTTP/1.1 400 ERROR');
-    echo json_encode ( array('status'=>400, 'msg'=>'缺少参数') );exit();
-  }else{
-    $create = createAd($arr);
-    if($create){
-      header('HTTP/1.1 200 OK');
-      echo json_encode ( array('status'=>200, 'msg'=>'ok') );exit();
+  if(tokenVerify($token)){
+    $arr['type']  = empty($bodyData['type'])? '':$bodyData['type'];
+    
+    if($arr['type'] == "FIND"){
+        $arr['uid'] = empty($bodyData['uid'])? 0:$bodyData['uid'];
+        $arr['real_name'] = empty($bodyData['real_name'])? '':$bodyData['real_name'];
+        $arr['sex'] = empty($bodyData['sex'])? "男":$bodyData['sex'];
+        $arr['mobile'] = empty($bodyData['mobile'])? '':$bodyData['mobile'];
+        $arr['birthday'] = empty($bodyData['birthday'])? '':$bodyData['birthday'];
+        $arr['city'] = empty($bodyData['city'])? '':$bodyData['city'];
+        $arr['now_state'] = empty($bodyData['now_state'])? '':$bodyData['now_state'];
+        $arr['now_ident'] = empty($bodyData['now_ident'])? '':$bodyData['now_ident'];
+        $arr['highest_degree'] = empty($bodyData['highest_degree'])? '':$bodyData['highest_degree'];
+        $arr['job_experience'] = empty($bodyData['job_experience'])? '':$bodyData['job_experience'];
+        $arr['job_desc'] = empty($bodyData['job_desc'])? '':$bodyData['job_desc'];
+        
+        if($arr['uid']>0 && $arr['real_name'] && $arr['mobile'] && $arr['job_desc']){
+            //insert
+            createOccup($arr);
+        }else{
+            header('HTTP/1.1 400 ERROR');
+            echo json_encode ( array('status'=>400, 'msg'=>'参数错误') );exit();
+        }
+    }elseif($arr['type'] == "FULLTIME"){
+        $arr['uid'] = empty($bodyData['uid'])? 0:$bodyData['uid'];
+        $arr['job_title'] = empty($bodyData['job_title'])? '':$bodyData['job_title'];
+        $arr['company_industry'] = empty($bodyData['company_industry'])? "":$bodyData['company_industry'];
+        $arr['pay'] = empty($bodyData['pay'])? '':$bodyData['pay'];
+        $arr['welfare'] = empty($bodyData['welfare'])? '':$bodyData['welfare'];
+        $arr['job_demand'] = empty($bodyData['job_demand'])? '':$bodyData['job_demand'];
+        $arr['ed_demand'] = empty($bodyData['ed_demand'])? '':$bodyData['ed_demand'];
+        $arr['year_demand'] = empty($bodyData['year_demand'])? '':$bodyData['year_demand'];
+        $arr['contacts_man'] = empty($bodyData['contacts_man'])? '':$bodyData['contacts_man'];
+        $arr['contacts_mobile'] = empty($bodyData['contacts_mobile'])? '':$bodyData['contacts_mobile'];
+        
+        if($arr['uid']>0 && $arr['job_title'] && $arr['contacts_man'] && $arr['contacts_mobile']){
+            //insert
+        }else{
+            header('HTTP/1.1 400 ERROR');
+            echo json_encode ( array('status'=>400, 'msg'=>'参数错误') );exit();
+        }
+    }elseif($arr['type'] == "PARTTIME"){
+        $arr['uid'] = empty($bodyData['uid'])? 0:$bodyData['uid'];
+        $arr['job_title'] = empty($bodyData['job_title'])? '':$bodyData['job_title'];
+        $arr['company_industry'] = empty($bodyData['company_industry'])? "":$bodyData['company_industry'];
+        $arr['part_term'] = empty($bodyData['part_term'])? '':$bodyData['part_term'];
+        $arr['part_interval_1'] = empty($bodyData['part_interval_1'])? '':$bodyData['part_interval_1'];
+        $arr['part_interval_2'] = empty($bodyData['part_interval_2'])? '':$bodyData['part_interval_2'];
+        $arr['part_payment'] = empty($bodyData['part_payment'])? '':$bodyData['part_payment'];
+        $arr['part_address'] = empty($bodyData['part_address'])? '':$bodyData['part_address'];
+        $arr['part_content'] = empty($bodyData['part_content'])? '':$bodyData['part_content'];
+        $arr['contacts_man'] = empty($bodyData['contacts_man'])? '':$bodyData['contacts_man'];
+        $arr['contacts_mobile'] = empty($bodyData['contacts_mobile'])? '':$bodyData['contacts_mobile'];
+        
+        if($arr['uid']>0 && $arr['job_title'] && $arr['contacts_man'] && $arr['contacts_mobile']){
+            //insert
+        }else{
+            header('HTTP/1.1 400 ERROR');
+            echo json_encode ( array('status'=>400, 'msg'=>'参数错误') );exit();
+        }
     }else{
-      header('HTTP/1.1 500 ERROR');
-      echo json_encode ( array('status'=>500, 'msg'=>'服务器错误') );exit();
+        header('HTTP/1.1 400 ERROR');
+        echo json_encode ( array('status'=>400, 'msg'=>'参数错误') );exit();
     }
+      
+      //$arr['ad_img']   = empty($bodyData['ad_img'])? '':$bodyData['ad_img'];
+//      $arr['ad_remark']= empty($bodyData['ad_remark'])? '':$bodyData['ad_remark'];
+//      $arr['ad_type']  = empty($bodyData['ad_type'])? '':$bodyData['ad_type'];
+//      $arr['ad_show']  = empty($bodyData['ad_show'])? '':$bodyData['ad_show'];
+//      if(!$arr['ad_name'] || !$arr['ad_img'] || !$arr['ad_type']){
+//        header('HTTP/1.1 400 ERROR');
+//        echo json_encode ( array('status'=>400, 'msg'=>'参数错误') );exit();
+//      }else{
+//        $create = createAd($arr);
+//        if($create){
+//          header('HTTP/1.1 200 OK');
+//          echo json_encode ( array('status'=>200, 'msg'=>'ok') );exit();
+//        }else{
+//          header('HTTP/1.1 500 ERROR');
+//          echo json_encode ( array('status'=>500, 'msg'=>'服务器错误') );exit();
+//        }
+//      }
+  }else{
+    header('HTTP/1.1 400 ERROR');
+    echo json_encode ( array('status'=>400, 'msg'=>'参数错误') );exit();
   }
-
+  
 }
 
 
@@ -91,6 +160,7 @@ if($ac == 'create'){
 
 
 
+/*******************************************************************func***************************************************************************/
 
 
 
@@ -98,12 +168,27 @@ if($ac == 'create'){
 
 
 
-
-function createAd($arr){
+function createOccup($arr){
   global $conn;
-  $sql="INSERT INTO `snail_ad` (ad_name,ad_img,ad_remark,ad_type,ad_show)
-  VALUES ('".$arr['ad_name']."','".$arr['ad_img']."','".$arr['ad_remark']."','".$arr['ad_type']."',".$arr['ad_show'].")";
-  return $conn->query($sql);
+  $time = time();
+  $post_id = 0;
+  if($arr['type'] == "FIND"){
+    $sql="INSERT INTO `snail_job_find` (uid,real_name,sex,mobile,birthday,city,now_state,now_ident,highest_degree,job_experience,job_desc)
+  VALUES (".$arr['uid'].",'".$arr['real_name']."','".$arr['sex']."','".$arr['mobile']."','".$arr['birthday']."','".$arr['city']."','".$arr['now_state']."','".$arr['now_ident']."','".$arr['highest_degree']."','".$arr['job_experience']."','".$arr['job_desc']."');";
+    $conn->query($sql);
+    $insert_id = $conn->insert_id;
+    if($insert_id){
+        $sql="INSERT INTO `snail_post_log` (post_id,post_type,uid,dateline) VALUES (".$insert_id.",'FIND','".$arr['uid']."',$time)";
+        $conn->query($sql);
+        $post_id = $conn->insert_id;
+    }
+  }elseif($arr['type'] == "FULLTIME"){
+    
+  }elseif($arr['type'] == "PARTTIME"){
+    
+  }
+  print_r($post_id);die;
+  return $post_id;
 }
 
 function getOccupListByType($type,$page=1,$pageCount=10){
