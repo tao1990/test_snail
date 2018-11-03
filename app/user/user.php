@@ -3,19 +3,16 @@
 header("Access-Control-Allow-Origin: *");
 header("Content-type: text/html; charset=utf-8");
 require_once("../comm/comm.php");
-require_once("../comm/conn_mysql.php");
-
+require_once("../../api/sms/signatureRequest.php");
 $ac = empty($_GET['ac'])? '':addslashes($_GET['ac']);
 //$m = empty($_GET['m'])? '':addslashes($_GET['m']);
 
 
 /**
- * @SWG\Get(path="/app/occup/occup.php?ac=list", tags={"occup"},
- *   summary="获取招聘求职列表",
+ * @SWG\Get(path="/app/user/user.php?ac=getCode", tags={"user"},
+ *   summary="获取注册验证码",
  *   description="",
- *   @SWG\Parameter(name="type", type="string", required=true, in="query",example = "FUULTIME|PARTTIME|FIND"),
- *   @SWG\Parameter(name="page", type="integer", required=true, in="query",example = "1"),
- *   @SWG\Parameter(name="pageCount", type="integer", required=true, in="query",example = "10"),
+ * @SWG\Parameter(name="mobile", type="string", required=true, in="query",example = "79XXX|1XXXX"),
  * @SWG\Response(
  *   response=200,
  *   description="ok response",
@@ -26,110 +23,119 @@ $ac = empty($_GET['ac'])? '':addslashes($_GET['ac']);
  *   )
  * )
  */
-if($ac == 'list'){
-  $type = empty($_GET['type'])? '':addslashes($_GET['type']);
-  $page = isset($_GET['page'])?$_GET['page']:1;
-  $pageCount = $_GET['pageCount'];
-  if(!in_array($type,array('FIND','FULLTIME','PARTTIME')) || !$page || !$pageCount){
-    header('HTTP/1.1 400 ERROR');
-    echo json_encode ( array('status'=>400, 'msg'=>'参数错误') );exit();
-  }else{
-    $list = getOccupListByType($type,$page,$pageCount);
-    if($list){
-        header('HTTP/1.1 200 OK');
-        echo json_encode ( array('status'=>200, 'data'=>array('total'=>$list['total'],'list'=>$list['list'])) );exit();
-    }
-  }
-}
-
-
-/**
- * @SWG\Post(path="/app/occup/occup.php?ac=create", tags={"occup"},
- *   summary="创建求职招聘未实现",
- *   description="",
- *   @SWG\Parameter(name="body", type="string", required=true, in="formData",
- *     description="body" ,example = "{	'ad_name':'首页广告02',	'ad_img':'/upload/20181031/33d2360b6fb024e170425f9ce57a14c1.jpg',	'ad_remark':'test',	'ad_type':'INDEX',	'ad_show':1}"
- *   ),
- * @SWG\Response(
- *   response=200,
- *   description="ok response",
- *   ),
- * @SWG\Response(
- *   response="default",
- *   description="unexpected error",
- *   )
- * )
- */
-if($ac == 'create'){
-  $bodyData = @file_get_contents('php://input');
-  $bodyData = json_decode($bodyData,true);
-  $arr['ad_name']  = empty($bodyData['ad_name'])? '':$bodyData['ad_name'];
-  $arr['ad_img']   = empty($bodyData['ad_img'])? '':$bodyData['ad_img'];
-  $arr['ad_remark']= empty($bodyData['ad_remark'])? '':$bodyData['ad_remark'];
-  $arr['ad_type']  = empty($bodyData['ad_type'])? '':$bodyData['ad_type'];
-  $arr['ad_show']  = empty($bodyData['ad_show'])? '':$bodyData['ad_show'];
-  if(!$arr['ad_name'] || !$arr['ad_img'] || !$arr['ad_type']){
-    header('HTTP/1.1 400 ERROR');
-    echo json_encode ( array('status'=>400, 'msg'=>'缺少参数') );exit();
-  }else{
-    $create = createAd($arr);
-    if($create){
-      header('HTTP/1.1 200 OK');
-      echo json_encode ( array('status'=>200, 'msg'=>'ok') );exit();
-    }else{
-      header('HTTP/1.1 500 ERROR');
-      echo json_encode ( array('status'=>500, 'msg'=>'服务器错误') );exit();
-    }
-  }
-
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-function createAd($arr){
-  global $conn;
-  $sql="INSERT INTO `snail_ad` (ad_name,ad_img,ad_remark,ad_type,ad_show)
-  VALUES ('".$arr['ad_name']."','".$arr['ad_img']."','".$arr['ad_remark']."','".$arr['ad_type']."',".$arr['ad_show'].")";
-  return $conn->query($sql);
-}
-
-function getOccupListByType($type,$page=1,$pageCount=10){
-    global $conn;
-    $list = array();
-    $time = time();
-    $offset=($page-1)*$pageCount;
-    if($type == "FIND"){//找工作
-
-      $total = $conn->query("SELECT * from `snail_job_find` WHERE `show` = 1 AND `start_date` < $time AND `end_date` > $time;")->num_rows;
-      $sql="SELECT * from `snail_job_find` WHERE `show` = 1 AND `start_date` < $time AND `end_date` > $time limit $offset,$pageCount;";
-      $result=$conn->query($sql);
-      while ($row = mysqli_fetch_assoc($result))
-      {
-          $list[] = $row;
-      }
+if($ac == 'getCode'){
+    
+    //phone check
+    $bodyData = @file_get_contents('php://input');
+    $bodyData = json_decode($bodyData,true);
+    $mobile = $_GET['mobile'];
+    //$hashCode - $bodyData['hashCode'];
+    $firstNum = substr( $mobile, 0, 1 );
+    if(strlen($mobile)==11 && ($firstNum == 1 || $firstNum == 7)){
         
-    }elseif($type == "FULLTIME" || $type == "PARTTIME"){ //全职兼职
-      $total = $conn->query("SELECT * from `snail_job_release` WHERE `show` = 1 AND `type` = '$type' AND `start_date` < $time AND `end_date` > $time;")->num_rows;
-      $sql="SELECT * from `snail_job_release` WHERE `show` = 1 AND `type` = '$type' AND `start_date` < $time AND `end_date` > $time limit $offset,$pageCount;";
-      $result=$conn->query($sql);
-      while ($row = mysqli_fetch_assoc($result))
-      {
-          $list[] = $row;
-      }
+        $templateCode = SMS_TEMPLATE_CN;
+        $code = rand(1000,9999);
+        updateVerify($mobile,$code);
+        if($firstNum == 7){
+            $templateCode = SMS_TEMPLATE_RU;
+            $mobile = "00".$mobile;
+        }
+    }else{
+        header('HTTP/1.1 400 参数错误');
+        echo json_encode ( array('status'=>400, 'msg'=>'参数错误') );exit();
+    }
+   
+    $res = sendSms($mobile,$templateCode,$code);
+    header('HTTP/1.1 200 OK');
+    echo json_encode ( array('status'=>200, 'data'=>$res) );exit();
+}
+
+if($ac == 'register'){
+    
+}
+
+
+if($ac == 'login'){
+    
+}
+
+
+
+
+
+
+
+function updateVerify($mobile,$code){
+    global $conn;
+    $have = $conn->query("SELECT * from `snail_verify` WHERE `mobile` = '$mobile' ")->fetch_row();
+    if($have){
+        $do = $conn->query("UPDATE `snail_verify` SET `code` = $code WHERE `mobile` = '$mobile';");
+    }else{
+        $do = $conn->query("INSERT INTO `snail_verify` (mobile,code) VALUES ('$mobile',$code);");
+    }
+}
+
+
+
+
+
+
+function sendSms($phone,$templateCode,$code) {
+    $params = array ();
+
+    // *** 需用户填写部分 ***
+    // fixme 必填：是否启用https
+    $security = false;
+
+    // fixme 必填: 请参阅 https://ak-console.aliyun.com/ 取得您的AK信息
+    $accessKeyId = SMS_ACCESS_KEY;
+    $accessKeySecret = SMS_ACCESS_SECRET;//
+    
+    // fixme 必填: 短信接收号码
+    //$params["PhoneNumbers"] = "0079652998678";
+    //$params["PhoneNumbers"] = "17621090121";
+    $params["PhoneNumbers"] = $phone;
+    
+
+    // fixme 必填: 短信签名，应严格按"签名名称"填写，请参考: https://dysms.console.aliyun.com/dysms.htm#/develop/sign
+    $params["SignName"] = SMS_SIGN_NAME;
+
+    // fixme 必填: 短信模板Code，应严格按"模板CODE"填写, 请参考: https://dysms.console.aliyun.com/dysms.htm#/develop/template
+    //$params["TemplateCode"] = "SMS_145255795";//国内
+    //$params["TemplateCode"] = "SMS_145295382";//国外
+    $params["TemplateCode"] = $templateCode;
+    // fixme 可选: 设置模板参数, 假如模板中存在变量需要替换则为必填项
+    $params['TemplateParam'] = Array (
+        "code" => $code
+    );
+
+    // fixme 可选: 设置发送短信流水号
+    $params['OutId'] = time();
+
+    // fixme 可选: 上行短信扩展码, 扩展码字段控制在7位或以下，无特殊需求用户请忽略此字段
+    $params['SmsUpExtendCode'] = "1234567";
+
+
+    // *** 需用户填写部分结束, 以下代码若无必要无需更改 ***
+    if(!empty($params["TemplateParam"]) && is_array($params["TemplateParam"])) {
+        $params["TemplateParam"] = json_encode($params["TemplateParam"], JSON_UNESCAPED_UNICODE);
     }
 
-    return array('total'=>$total,'list'=>$list);
+    // 初始化SignatureRequest实例用于设置参数，签名以及发送请求
+    $helper = new SignatureRequest();
+
+    // 此处可能会抛出异常，注意catch
+    $content = $helper->request(
+        $accessKeyId,
+        $accessKeySecret,
+        "dysmsapi.aliyuncs.com",
+        array_merge($params, array(
+            "RegionId" => "cn-hangzhou",
+            "Action" => "SendSms",
+            "Version" => "2017-05-25",
+        )),
+        $security
+    );
+
+    return $content;
 }

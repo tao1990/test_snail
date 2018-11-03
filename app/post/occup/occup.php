@@ -2,14 +2,14 @@
 
 header("Access-Control-Allow-Origin: *");
 header("Content-type: text/html; charset=utf-8");
-require_once("../comm/comm.php");
+require_once("../../comm/comm.php");
 
 $ac = empty($_GET['ac'])? '':addslashes($_GET['ac']);
 $token = empty($_GET['token'])? '':addslashes($_GET['token']);
 
 
 /**
- * @SWG\Get(path="/app/occup/occup.php?ac=list", tags={"occup"},
+ * @SWG\Get(path="/app/post/occup/occup.php?ac=list", tags={"occup"},
  *   summary="获取招聘求职列表",
  *   description="",
  *   @SWG\Parameter(name="type", type="string", required=true, in="query",example = "FULLTIME|PARTTIME|FIND"),
@@ -43,8 +43,8 @@ if($ac == 'list'){
 
 
 /**
- * @SWG\Post(path="/app/occup/occup.php?ac=create", tags={"occup"},
- *   summary="创建求职招聘未实现",
+ * @SWG\Post(path="/app/post/occup/occup.php?ac=create", tags={"occup"},
+ *   summary="创建求职招聘",
  *   description="",
  *   @SWG\Parameter(name="body", type="string", required=true, in="formData",
  *     description="body" ,example = "{	'ad_name':'首页广告02',	'ad_img':'/upload/20181031/33d2360b6fb024e170425f9ce57a14c1.jpg',	'ad_remark':'test',	'ad_type':'INDEX',	'ad_show':1}"
@@ -80,10 +80,7 @@ if($ac == 'create'){
         $arr['job_experience'] = empty($bodyData['job_experience'])? '':$bodyData['job_experience'];
         $arr['job_desc'] = empty($bodyData['job_desc'])? '':$bodyData['job_desc'];
         
-        if($arr['uid']>0 && $arr['real_name'] && $arr['mobile'] && $arr['job_desc']){
-            //insert
-            createOccup($arr);
-        }else{
+        if($arr['uid'] == 0 || !$arr['real_name'] || !$arr['mobile'] || !$arr['job_desc']){
             header('HTTP/1.1 400 ERROR');
             echo json_encode ( array('status'=>400, 'msg'=>'参数错误') );exit();
         }
@@ -99,9 +96,7 @@ if($ac == 'create'){
         $arr['contacts_man'] = empty($bodyData['contacts_man'])? '':$bodyData['contacts_man'];
         $arr['contacts_mobile'] = empty($bodyData['contacts_mobile'])? '':$bodyData['contacts_mobile'];
         
-        if($arr['uid']>0 && $arr['job_title'] && $arr['contacts_man'] && $arr['contacts_mobile']){
-            //insert
-        }else{
+        if($arr['uid'] == 0 || !$arr['job_title'] || !$arr['contacts_man'] || !$arr['contacts_mobile']){
             header('HTTP/1.1 400 ERROR');
             echo json_encode ( array('status'=>400, 'msg'=>'参数错误') );exit();
         }
@@ -118,9 +113,7 @@ if($ac == 'create'){
         $arr['contacts_man'] = empty($bodyData['contacts_man'])? '':$bodyData['contacts_man'];
         $arr['contacts_mobile'] = empty($bodyData['contacts_mobile'])? '':$bodyData['contacts_mobile'];
         
-        if($arr['uid']>0 && $arr['job_title'] && $arr['contacts_man'] && $arr['contacts_mobile']){
-            //insert
-        }else{
+        if($arr['uid'] == 0 || !$arr['job_title'] || !$arr['contacts_man'] || !$arr['contacts_mobile']){
             header('HTTP/1.1 400 ERROR');
             echo json_encode ( array('status'=>400, 'msg'=>'参数错误') );exit();
         }
@@ -128,24 +121,16 @@ if($ac == 'create'){
         header('HTTP/1.1 400 ERROR');
         echo json_encode ( array('status'=>400, 'msg'=>'参数错误') );exit();
     }
+    
+    $postId = createOccup($arr);
+    if($postId){
+        header('HTTP/1.1 200 ok');
+        echo json_encode ( array('status'=>200, 'postId'=>$postId) );exit();
+    }else{
+        header('HTTP/1.1 500 SERVER ERROR');
+        echo json_encode ( array('status'=>500, 'msg'=>'SERVER ERROR') );exit();
+    }
       
-      //$arr['ad_img']   = empty($bodyData['ad_img'])? '':$bodyData['ad_img'];
-//      $arr['ad_remark']= empty($bodyData['ad_remark'])? '':$bodyData['ad_remark'];
-//      $arr['ad_type']  = empty($bodyData['ad_type'])? '':$bodyData['ad_type'];
-//      $arr['ad_show']  = empty($bodyData['ad_show'])? '':$bodyData['ad_show'];
-//      if(!$arr['ad_name'] || !$arr['ad_img'] || !$arr['ad_type']){
-//        header('HTTP/1.1 400 ERROR');
-//        echo json_encode ( array('status'=>400, 'msg'=>'参数错误') );exit();
-//      }else{
-//        $create = createAd($arr);
-//        if($create){
-//          header('HTTP/1.1 200 OK');
-//          echo json_encode ( array('status'=>200, 'msg'=>'ok') );exit();
-//        }else{
-//          header('HTTP/1.1 500 ERROR');
-//          echo json_encode ( array('status'=>500, 'msg'=>'服务器错误') );exit();
-//        }
-//      }
   }else{
     header('HTTP/1.1 400 ERROR');
     echo json_encode ( array('status'=>400, 'msg'=>'参数错误') );exit();
@@ -173,21 +158,27 @@ function createOccup($arr){
   $time = time();
   $post_id = 0;
   if($arr['type'] == "FIND"){
+    
     $sql="INSERT INTO `snail_job_find` (uid,real_name,sex,mobile,birthday,city,now_state,now_ident,highest_degree,job_experience,job_desc)
   VALUES (".$arr['uid'].",'".$arr['real_name']."','".$arr['sex']."','".$arr['mobile']."','".$arr['birthday']."','".$arr['city']."','".$arr['now_state']."','".$arr['now_ident']."','".$arr['highest_degree']."','".$arr['job_experience']."','".$arr['job_desc']."');";
-    $conn->query($sql);
-    $insert_id = $conn->insert_id;
-    if($insert_id){
-        $sql="INSERT INTO `snail_post_log` (post_id,post_type,uid,dateline) VALUES (".$insert_id.",'FIND','".$arr['uid']."',$time)";
-        $conn->query($sql);
-        $post_id = $conn->insert_id;
-    }
+      
   }elseif($arr['type'] == "FULLTIME"){
     
+    $sql="INSERT INTO `snail_job_release` (type,uid,job_title,company_industry,pay,welfare,job_demand,ed_demand,year_demand,contacts_man,contacts_mobile)
+  VALUES ('FULLTIME',".$arr['uid'].",'".$arr['job_title']."','".$arr['company_industry']."','".$arr['pay']."','".$arr['welfare']."','".$arr['job_demand']."','".$arr['ed_demand']."','".$arr['year_demand']."','".$arr['contacts_man']."','".$arr['contacts_mobile']."');";
+
   }elseif($arr['type'] == "PARTTIME"){
-    
+    $sql="INSERT INTO `snail_job_release` (type,uid,job_title,company_industry,part_term,part_interval_1,part_interval_2,part_payment,part_address,part_content,contacts_man,contacts_mobile)
+  VALUES ('FULLTIME',".$arr['uid'].",'".$arr['job_title']."','".$arr['company_industry']."','".$arr['part_term']."','".$arr['part_interval_1']."','".$arr['part_interval_2']."','".$arr['part_payment']."','".$arr['part_address']."','".$arr['part_content']."','".$arr['contacts_man']."','".$arr['contacts_mobile']."');";
   }
-  print_r($post_id);die;
+  $conn->query($sql);
+  $insert_id = $conn->insert_id;
+  if($insert_id){
+        $sql="INSERT INTO `snail_post_log` (post_id,post_type,uid,dateline) VALUES (".$insert_id.",'".$arr['type']."','".$arr['uid']."',$time)";
+        $conn->query($sql);
+        $post_id = $conn->insert_id;
+  }
+  
   return $post_id;
 }
 

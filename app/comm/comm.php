@@ -5,9 +5,12 @@ header ( "Content-type: text/html; charset=UTF-8" );
 require_once("conn_mysql.php");
 define("IMG_SITE","http://img.neotv.cn");
 define("ENCRY_KEY","snailkey2018");
-
-
-
+//aliyun sms
+define("SMS_ACCESS_KEY","LTAIMd1LXayHKDA6");
+define("SMS_ACCESS_SECRET","3nYeOlhy5EuD7csW6H6PDtr1UxzhQI");
+define("SMS_SIGN_NAME","略合科技");
+define("SMS_TEMPLATE_CN","SMS_145255795");//国内手机号短信模板id
+define("SMS_TEMPLATE_RU","SMS_145295382");//俄罗斯手机号短信模板id
 
 
 function tokenCreate($uid){

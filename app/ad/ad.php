@@ -10,7 +10,7 @@ $ac = empty($_GET['ac'])? '':addslashes($_GET['ac']);
 
 /**
  * @SWG\Get(path="/app/ad/ad.php?ac=list", tags={"ad"},
- *   summary="获取广告列表",
+ *   summary="获取系统广告列表",
  *   description="",
  *   @SWG\Parameter(name="ad_type", type="string", required=true, in="query",example="INDEX|MINE"
  *   ),
@@ -39,7 +39,7 @@ if($ac == 'list'){
 
 /**
  * @SWG\Post(path="/app/ad/ad.php?ac=create", tags={"ad"},
- *   summary="创建广告",
+ *   summary="创建系统广告",
  *   description="",
  *   @SWG\Parameter(name="body", type="string", required=true, in="formData",
  *     description="body" ,example = "{	'ad_name':'首页广告02',	'ad_img':'/upload/20181031/33d2360b6fb024e170425f9ce57a14c1.jpg',	'ad_remark':'test',	'ad_type':'INDEX',	'ad_show':1}"
