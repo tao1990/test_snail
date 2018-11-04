@@ -51,12 +51,36 @@ if($ac == 'getCode'){
 }
 
 if($ac == 'register'){
-    
+    //hongbao
 }
 
 
 if($ac == 'login'){
-    
+    $bodyData = @file_get_contents('php://input');
+    $bodyData = json_decode($bodyData,true);
+    $mobile = $bodyData['mobile'];
+    $password = $bodyData['password'];
+    $check = checkUser($mobile,$password);
+    if($check[0]){
+        $token = tokenCreate($check[0]);
+        $resArr = array(
+            'username'=>$check[1],
+            'mobile'=>$check[2],
+            'token'=>$token
+        );
+        
+        //need add bonus info
+        //求职+广告墙价格 100 其余都是200
+        //注册送300（100+200）
+        
+        
+        header('HTTP/1.1 200 OK');
+        echo json_encode ( array('status'=>200, 'data'=>$resArr) );exit();
+    }else{
+        header('HTTP/1.1 403 验证失败');
+        echo json_encode ( array('status'=>403, 'msg'=>'验证失败') );exit();
+    }
+    print_r($token);die;
 }
 
 
@@ -64,6 +88,15 @@ if($ac == 'login'){
 
 
 
+/****************************************************FUNC*************************************************************/
+
+
+
+function checkUser($mobile,$password){
+    global $conn;
+    $password = md5($password);
+    return $conn->query("SELECT * from `snail_user` WHERE `mobile` = '$mobile' AND password='$password' ")->fetch_row();
+}
 
 function updateVerify($mobile,$code){
     global $conn;
@@ -74,9 +107,6 @@ function updateVerify($mobile,$code){
         $do = $conn->query("INSERT INTO `snail_verify` (mobile,code) VALUES ('$mobile',$code);");
     }
 }
-
-
-
 
 
 
