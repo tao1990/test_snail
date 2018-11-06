@@ -51,7 +51,41 @@ if($ac == 'getCode'){
 }
 
 if($ac == 'register'){
-    //hongbao
+    
+    $bodyData = @file_get_contents('php://input');
+    $bodyData = json_decode($bodyData,true);
+    $type = $bodyData['type'];
+    $mobile = $bodyData['mobile'];
+    $password1 = $bodyData['password1'];
+    $password2 = $bodyData['password2'];
+    $verifyCode = $bodyData['verifyCode'];
+    
+    $verify = checkVerify();
+    if($verify && $password1 && $password2 && ($password1 == $password2) && $mobile && $type){
+        
+        $uid = addUser();
+        if($uid){
+            //need add bonus info
+            //求职+广告墙价格 100 其余都是200
+            //注册送300（100+200）
+            
+            
+            
+            
+             header('HTTP/1.1 200 注册成功');
+            echo json_encode ( array('status'=>200, 'data'=>array('uid'=>$uid)) );exit();
+        }else{
+            header('HTTP/1.1 500 注册失败');
+            echo json_encode ( array('status'=>500, 'msg'=>'注册失败') );exit();
+        }
+        
+    }else{
+        header('HTTP/1.1 400 参数错误');
+        echo json_encode ( array('status'=>400, 'msg'=>'参数错误') );exit();
+    }
+    
+    
+    
 }
 
 
@@ -61,26 +95,29 @@ if($ac == 'login'){
     $mobile = $bodyData['mobile'];
     $password = $bodyData['password'];
     $check = checkUser($mobile,$password);
-    if($check[0]){
-        $token = tokenCreate($check[0]);
-        $resArr = array(
-            'username'=>$check[1],
-            'mobile'=>$check[2],
-            'token'=>$token
-        );
+    if($check['uid']){
+        $token = tokenCreate($check['uid']);
+        
         
         //need add bonus info
         //求职+广告墙价格 100 其余都是200
         //注册送300（100+200）
         
+        $bonusInfo = getUserBonusInfo($check['uid']);
         
+        
+        $resArr = array(
+            'username'=>$check['username'],
+            'mobile'=>$check['mobile'],
+            'token'=>$token,
+            'bonusInfo'=>$bonusInfo
+        );
         header('HTTP/1.1 200 OK');
         echo json_encode ( array('status'=>200, 'data'=>$resArr) );exit();
     }else{
         header('HTTP/1.1 403 验证失败');
         echo json_encode ( array('status'=>403, 'msg'=>'验证失败') );exit();
     }
-    print_r($token);die;
 }
 
 
@@ -90,12 +127,41 @@ if($ac == 'login'){
 
 /****************************************************FUNC*************************************************************/
 
+//获取用户红包信息
+function getUserBonusInfo($uid){
+  global $conn;
+  $result = $conn->query("SELECT * from `snail_user_bonus` A LEFT JOIN `snail_bonus_type` B  ON A.bonus_type_id = B.type_id WHERE A.uid = $uid;");
+  while ($row = mysqli_fetch_assoc($result))
+  {
+      if($row['expiry_time'] != 0){
+        $row['overdue'] =  $row['get_time'] + (86400*$row['use_term']) > $row['expiry_time'] ? 1:0;  
+      }else{
+        $row['overdue'] = 0;
+      }
+      $list[] = $row;
+  }
+  return $list;
+}
 
+function addUser($arr){
+    global $conn;
+    $username = "";
+    $mobile = $arr['mobile'];
+    $type   = $arr['type'];
+    $password = md5($arr['password']);
+    $res = $conn->query("INSERT INTO `snail_user` (username,mobile,type,password) VALUES ('$username','$mobile','$type','$password');");
+    $uid = $conn->insert_id;
+    return $uid;
+}
+
+function checkVerify($mobile,$code){
+    return $conn->query("SELECT * from `snail_verify` WHERE `mobile` = '$mobile' AND `code`='$code'; ")->fetch_row();
+}
 
 function checkUser($mobile,$password){
     global $conn;
     $password = md5($password);
-    return $conn->query("SELECT * from `snail_user` WHERE `mobile` = '$mobile' AND password='$password' ")->fetch_row();
+    return $conn->query("SELECT * from `snail_user` WHERE `mobile` = '$mobile' AND password='$password' ")->fetch_assoc();
 }
 
 function updateVerify($mobile,$code){
