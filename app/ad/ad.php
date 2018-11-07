@@ -104,7 +104,7 @@ function createAd($arr){
 function getAdListByType($type){
     global $conn;
     $list = array();
-    $sql="SELECT * from `snail_ad` WHERE ad_type = '".$type."';";
+    $sql="SELECT * from `snail_ad` WHERE ad_type = '".$type."' AND ad_show = 1;";
     $result=$conn->query($sql);
     while ($row = mysqli_fetch_assoc($result))
     {

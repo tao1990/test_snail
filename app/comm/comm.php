@@ -12,6 +12,8 @@ define("SMS_SIGN_NAME","略合科技");
 define("SMS_TEMPLATE_CN","SMS_145255795");//国内手机号短信模板id
 define("SMS_TEMPLATE_RU","SMS_145295382");//俄罗斯手机号短信模板id
 
+//bonus
+define("SEND_BONUS_IDS","1,2,3,4,5");
 
 function tokenCreate($uid){
     $str = $uid."#".time();
