@@ -13,7 +13,7 @@ $ac = empty($_GET['ac'])? '':$_GET['ac'];
 
 /**
  * @SWG\Post(path="/app/other/file.php?ac=upload", tags={"other"},
- *   summary="Í¼Æ¬ÉÏ´«",
+ *   summary="å›¾ç‰‡ä¸Šä¼ ",
  *   description="",
  *   @SWG\Parameter(name="img", type="file", required=true, in="formData",
  *     description="file" 
@@ -30,7 +30,7 @@ $ac = empty($_GET['ac'])? '':$_GET['ac'];
  */
 if($ac == 'upload'){
 
-  $type     = $_FILES['img']['name'];//ÎÄ¼şÃû
+  $type     = $_FILES['img']['name'];//æ–‡ä»¶å
   //print_r($_FILES['img']['name']);die;
   if($type){
     $type     = explode('.',$type);
@@ -39,9 +39,9 @@ if($ac == 'upload'){
     if (! in_array($type, $filetype))
     {
         header('HTTP/1.1 500 ERROR');
-      	echo json_encode ( array('status'=>400, 'msg'=>'²»ÊÇÍ¼Æ¬ÀàĞÍ') );exit();
+      	echo json_encode ( array('status'=>400, 'msg'=>'ä¸æ˜¯å›¾ç‰‡ç±»å‹') );exit();
     }
-    $base_path = "../../upload/".date('Ymd',time())."/"; //´æ·ÅÄ¿Â¼
+    $base_path = "../../upload/".date('Ymd',time())."/"; //å­˜æ”¾ç›®å½•
     if(!is_dir($base_path)){
       mkdir($base_path,0777,true);
     }

@@ -10,7 +10,7 @@ $token = empty($_GET['token'])? '':addslashes($_GET['token']);
 
 /**
  * @SWG\Get(path="/app/post/occup/occup.php?ac=list", tags={"post"},
- *   summary="»ñÈ¡ÕĞÆ¸ÇóÖ°ÁĞ±í",
+ *   summary="è·å–æ‹›è˜æ±‚èŒåˆ—è¡¨",
  *   description="",
  *   @SWG\Parameter(name="type", type="string", required=true, in="query"),
  *   @SWG\Parameter(name="page", type="integer", required=true, in="query",example = "1"),
@@ -45,13 +45,13 @@ if($ac == 'list'){
 
 /**
  * @SWG\Post(path="/app/post/occup/occup.php?ac=create", tags={"post"},
- *   summary="´´½¨ÇóÖ°ÕĞÆ¸(OK)",
+ *   summary="åˆ›å»ºæ±‚èŒæ‹›è˜(OK)",
  *   description="",
  *   @SWG\Parameter(name="token", type="string", required=true, in="query",
  *     description="token"
  *   ),
  *   @SWG\Parameter(name="body", type="string", required=true, in="formData",
- *     description="body" ,example = "{	'uid':1,	'type':'È«Ö°ÕĞÆ¸',	'title':'ÕĞÆ¸001',work_type':'·­Òë',	'industry_type':'²ÍÒû',	'salary':'5000',	'salary_type':'RMB',	'sex':'0',	'age':'10',	'content':'jian¼òÊö¡£¡£¡£¡£',	'contacts_man':'lianxiren',	'contacts_man':'lianxiren',	'contacts_mobile':'17621090121'}"
+ *     description="body" ,example = "{	'uid':1,	'type':'å…¨èŒæ‹›è˜',	'title':'æ‹›è˜001',work_type':'ç¿»è¯‘',	'industry_type':'é¤é¥®',	'salary':'5000',	'salary_type':'RMB',	'sex':'0',	'age':'10',	'content':'jianç®€è¿°ã€‚ã€‚ã€‚ã€‚',	'contacts_man':'lianxiren',	'contacts_man':'lianxiren',	'contacts_mobile':'17621090121'}"
  *   ),
  * @SWG\Response(
  *   response=200,
@@ -75,7 +75,7 @@ if($ac == 'create'){
     $arr['industry_type'] = empty($bodyData['industry_type'])? '':$bodyData['industry_type'];
     $arr['salary'] = empty($bodyData['salary'])? '':$bodyData['salary'];
     $arr['salary_type'] = empty($bodyData['salary_type'])? 'RMB':$bodyData['salary_type'];
-    $arr['sex'] = empty($bodyData['sex'])? 'ÄĞ'?:$bodyData['sex'];
+    $arr['sex'] = empty($bodyData['sex'])? 'ç”·'?:$bodyData['sex'];
     $arr['age'] = empty($bodyData['age'])? '':$bodyData['age'];
     $arr['content'] = empty($bodyData['content'])? '':$bodyData['content'];
     $arr['contacts_man'] = empty($bodyData['contacts_man'])? '':$bodyData['contacts_man'];
@@ -145,15 +145,15 @@ function getAdWallListByType($type,$page=1,$pageCount=10){
 /*
 {
 	"uid":1,
-	"type":"È«Ö°ÕĞÆ¸",
-	"title":"È«Ö°ÕĞÆ¸001",
-	"work_type":"·­Òë",
-	"industry_type":"²ÍÒû",
+	"type":"å…¨èŒæ‹›è˜",
+	"title":"å…¨èŒæ‹›è˜001",
+	"work_type":"ç¿»è¯‘",
+	"industry_type":"é¤é¥®",
 	"salary":"5000",
 	"salary_type":"RMB",
 	"sex":"0",
 	"age":"10",
-	"content":"jian¼òÊö¡£¡£¡£¡£',
+	"content":"jianç®€è¿°ã€‚ã€‚ã€‚ã€‚',
 	"contacts_man":"lianxiren",
 	"contacts_man":"lianxiren",
 	"contacts_mobile":"17621090121"

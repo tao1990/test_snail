@@ -1,7 +1,7 @@
 <?php
 //ini_set("display_errors", "On");
 //error_reporting(E_ALL | E_STRICT);
-header ( "Content-type: application/json; charset=UTF-8" );
+//header ( "Content-type: application/json; charset=UTF-8" );
 require_once("conn_mysql.php");
 define("IMG_SITE","http://img.neotv.cn");
 define("ENCRY_KEY","snailkey2018");
@@ -11,8 +11,8 @@ define("SMS_ACCESS_SECRET","3nYeOlhy5EuD7csW6H6PDtr1UxzhQI");
 define("SMS_SIGN_NAME","略合科技");
 define("SMS_REG_TEMPLATE_CN","SMS_145255795");//国内手机号短信模板id
 define("SMS_REG_TEMPLATE_RU","SMS_145295382");//俄罗斯手机号短信模板id
-define("SMS_PW_TEMPLATE_CN","SMS_145255794");//国内手机号短信模板id（忘记密码）
-define("SMS_PW_TEMPLATE_RU","SMS_150744055");//俄罗斯手机号短信模板id（忘记密码）
+define("SMS_PWD_TEMPLATE_CN","SMS_145255794");//国内手机号短信模板id（忘记密码）
+define("SMS_PWD_TEMPLATE_RU","SMS_150744055");//俄罗斯手机号短信模板id（忘记密码）
 
 //bonus
 define("SEND_BONUS_IDS","1,2,3,4,5");

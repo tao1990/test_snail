@@ -8,7 +8,7 @@ $ac = empty($_GET['ac'])? '':addslashes($_GET['ac']);
 
 /**
  * @SWG\Post(path="/app/other/suggest.php?ac=suggest", tags={"other"},
- *   summary="½¨ÒéÏä",
+ *   summary="å»ºè®®ç®±",
  *   description="",
  *   @SWG\Parameter(name="body", type="string", required=true, in="formData",
  *     description="body" ,example = "{	'suggest':'',	'contact_man':'','contact_mobile':''}"

@@ -15,46 +15,46 @@ echo json_encode($a);exit();
 function sendSms() {
     $params = array ();
 
-    // *** ÐèÓÃ»§ÌîÐ´²¿·Ö ***
-    // fixme ±ØÌî£ºÊÇ·ñÆôÓÃhttps
+    // *** éœ€ç”¨æˆ·å¡«å†™éƒ¨åˆ† ***
+    // fixme å¿…å¡«ï¼šæ˜¯å¦å¯ç”¨https
     $security = false;
 
-    // fixme ±ØÌî: Çë²ÎÔÄ https://ak-console.aliyun.com/ È¡µÃÄúµÄAKÐÅÏ¢
+    // fixme å¿…å¡«: è¯·å‚é˜… https://ak-console.aliyun.com/ å–å¾—æ‚¨çš„AKä¿¡æ¯
     $accessKeyId = "LTAIMd1LXayHKDA6";
     $accessKeySecret = "3nYeOlhy5EuD7csW6H6PDtr1UxzhQI";//
 
-    // fixme ±ØÌî: ¶ÌÐÅ½ÓÊÕºÅÂë
+    // fixme å¿…å¡«: çŸ­ä¿¡æŽ¥æ”¶å·ç 
     //$params["PhoneNumbers"] = "0079652998678";
     $params["PhoneNumbers"] = "17621090121";
 
-    // fixme ±ØÌî: ¶ÌÐÅÇ©Ãû£¬Ó¦ÑÏ¸ñ°´"Ç©ÃûÃû³Æ"ÌîÐ´£¬Çë²Î¿¼: https://dysms.console.aliyun.com/dysms.htm#/develop/sign
-    $params["SignName"] = "ÂÔºÏ¿Æ¼¼";
+    // fixme å¿…å¡«: çŸ­ä¿¡ç­¾åï¼Œåº”ä¸¥æ ¼æŒ‰"ç­¾ååç§°"å¡«å†™ï¼Œè¯·å‚è€ƒ: https://dysms.console.aliyun.com/dysms.htm#/develop/sign
+    $params["SignName"] = "ç•¥åˆç§‘æŠ€";
 
-    // fixme ±ØÌî: ¶ÌÐÅÄ£°åCode£¬Ó¦ÑÏ¸ñ°´"Ä£°åCODE"ÌîÐ´, Çë²Î¿¼: https://dysms.console.aliyun.com/dysms.htm#/develop/template
+    // fixme å¿…å¡«: çŸ­ä¿¡æ¨¡æ¿Codeï¼Œåº”ä¸¥æ ¼æŒ‰"æ¨¡æ¿CODE"å¡«å†™, è¯·å‚è€ƒ: https://dysms.console.aliyun.com/dysms.htm#/develop/template
     //$params["TemplateCode"] = "SMS_145255795";//guonei
-    $params["TemplateCode"] = "SMS_145295382";//¹úÍâ
+    $params["TemplateCode"] = "SMS_145295382";//å›½å¤–
 
-    // fixme ¿ÉÑ¡: ÉèÖÃÄ£°å²ÎÊý, ¼ÙÈçÄ£°åÖÐ´æÔÚ±äÁ¿ÐèÒªÌæ»»ÔòÎª±ØÌîÏî
+    // fixme å¯é€‰: è®¾ç½®æ¨¡æ¿å‚æ•°, å‡å¦‚æ¨¡æ¿ä¸­å­˜åœ¨å˜é‡éœ€è¦æ›¿æ¢åˆ™ä¸ºå¿…å¡«é¡¹
     $params['TemplateParam'] = Array (
         "code" => 0412
     );
 
-    // fixme ¿ÉÑ¡: ÉèÖÃ·¢ËÍ¶ÌÐÅÁ÷Ë®ºÅ
+    // fixme å¯é€‰: è®¾ç½®å‘é€çŸ­ä¿¡æµæ°´å·
     $params['OutId'] = time();
 
-    // fixme ¿ÉÑ¡: ÉÏÐÐ¶ÌÐÅÀ©Õ¹Âë, À©Õ¹Âë×Ö¶Î¿ØÖÆÔÚ7Î»»òÒÔÏÂ£¬ÎÞÌØÊâÐèÇóÓÃ»§ÇëºöÂÔ´Ë×Ö¶Î
+    // fixme å¯é€‰: ä¸Šè¡ŒçŸ­ä¿¡æ‰©å±•ç , æ‰©å±•ç å­—æ®µæŽ§åˆ¶åœ¨7ä½æˆ–ä»¥ä¸‹ï¼Œæ— ç‰¹æ®Šéœ€æ±‚ç”¨æˆ·è¯·å¿½ç•¥æ­¤å­—æ®µ
     $params['SmsUpExtendCode'] = "1234567";
 
 
-    // *** ÐèÓÃ»§ÌîÐ´²¿·Ö½áÊø, ÒÔÏÂ´úÂëÈôÎÞ±ØÒªÎÞÐè¸ü¸Ä ***
+    // *** éœ€ç”¨æˆ·å¡«å†™éƒ¨åˆ†ç»“æŸ, ä»¥ä¸‹ä»£ç è‹¥æ— å¿…è¦æ— éœ€æ›´æ”¹ ***
     if(!empty($params["TemplateParam"]) && is_array($params["TemplateParam"])) {
         $params["TemplateParam"] = json_encode($params["TemplateParam"], JSON_UNESCAPED_UNICODE);
     }
 
-    // ³õÊ¼»¯SignatureRequestÊµÀýÓÃÓÚÉèÖÃ²ÎÊý£¬Ç©ÃûÒÔ¼°·¢ËÍÇëÇó
+    // åˆå§‹åŒ–SignatureRequestå®žä¾‹ç”¨äºŽè®¾ç½®å‚æ•°ï¼Œç­¾åä»¥åŠå‘é€è¯·æ±‚
     $helper = new SignatureRequest();
 
-    // ´Ë´¦¿ÉÄÜ»áÅ×³öÒì³££¬×¢Òâcatch
+    // æ­¤å¤„å¯èƒ½ä¼šæŠ›å‡ºå¼‚å¸¸ï¼Œæ³¨æ„catch
     $content = $helper->request(
         $accessKeyId,
         $accessKeySecret,

@@ -10,9 +10,10 @@ $ac = empty($_GET['ac'])? '':addslashes($_GET['ac']);
 
 /**
  * @SWG\Get(path="/app/user/user.php?ac=getCode", tags={"user"},
- *   summary="获取注册验证码(OK)",
+ *   summary="获取验证码(OK)",
  *   description="",
  * @SWG\Parameter(name="mobile", type="string", required=true, in="query",example = "79XXX|1XXXX"),
+ * @SWG\Parameter(name="type", type="string", required=true, in="query",example = "REG|PWD"),
  * @SWG\Response(
  *   response=200,
  *   description="ok response",
@@ -29,8 +30,9 @@ if($ac == 'getCode'){
     //$bodyData = @file_get_contents('php://input');
     //$bodyData = json_decode($bodyData,true);
     $mobile     = $_GET['mobile'];
-    $type       = $_GET['type']=="PWD"?"REG":"PWD";
+    $type       = $_GET['type'] == "PWD" ? "PWD":"REG";
     //$hashCode - $bodyData['hashCode'];
+
     $firstNum = substr( $mobile, 0, 1 );
     if(strlen($mobile)==11 && ($firstNum == 1 || $firstNum == 7)){
         

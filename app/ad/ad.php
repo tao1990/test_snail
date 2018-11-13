@@ -5,30 +5,28 @@ header("Content-type: application/json; charset=utf-8");
 require_once("../comm/comm.php");
 
 $ac = empty($_GET['ac'])? '':addslashes($_GET['ac']);
-//$m = empty($_GET['m'])? '':addslashes($_GET['m']);
-
 
 /**
  * @SWG\Get(path="/app/ad/ad.php?ac=list", tags={"ad"},
- *   summary="��ȡϵͳ����б�",
+ *   summary="获取系统广告列表",
  *   description="",
- *   @SWG\Parameter(name="ad_type", type="string", required=true, in="query",example="INDEX|MINE"
- *   ),
- * @SWG\Response(
+ *   @SWG\Parameter(name="ad_type", type="string", required=true, in="query",example="INDEX|MINE"),
+ *   @SWG\Response(
  *   response=200,
  *   description="ok response",
  *   ),
- * @SWG\Response(
+ *   @SWG\Response(
  *   response="default",
  *   description="unexpected error",
  *   )
  * )
  */
+ 
 if($ac == 'list'){
   $ad_type = empty($_GET['ad_type'])? '':addslashes($_GET['ad_type']);
   if(!$ad_type){
     header('HTTP/1.1 400 ERROR');
-    echo json_encode ( array('status'=>400, 'msg'=>'ȱ�ٲ���') );exit();
+    echo json_encode ( array('status'=>400, 'msg'=>'缺少参数') );exit();
   }else{
     $list = getAdListByType($ad_type);
     header('HTTP/1.1 200 OK');
@@ -39,10 +37,10 @@ if($ac == 'list'){
 
 /**
  * @SWG\Post(path="/app/ad/ad.php?ac=create", tags={"ad"},
- *   summary="����ϵͳ���",
+ *   summary="创建系统广告",
  *   description="",
  *   @SWG\Parameter(name="body", type="string", required=true, in="formData",
- *     description="body" ,example = "{	'ad_name':'��ҳ���02',	'ad_img':'/upload/20181031/33d2360b6fb024e170425f9ce57a14c1.jpg',	'ad_remark':'test',	'ad_type':'INDEX',	'ad_show':1}"
+ *     description="body" ,example = "{	'ad_name':'首页广告02',	'ad_img':'/upload/20181031/33d2360b6fb024e170425f9ce57a14c1.jpg',	'ad_remark':'test',	'ad_type':'INDEX',	'ad_show':1}"
  *   ),
  * @SWG\Response(
  *   response=200,
@@ -64,7 +62,7 @@ if($ac == 'create'){
   $arr['ad_show']  = empty($bodyData['ad_show'])? '':$bodyData['ad_show'];
   if(!$arr['ad_name'] || !$arr['ad_img'] || !$arr['ad_type']){
     header('HTTP/1.1 400 ERROR');
-    echo json_encode ( array('status'=>400, 'msg'=>'ȱ�ٲ���') );exit();
+    echo json_encode ( array('status'=>400, 'msg'=>'缺少参数') );exit();
   }else{
     $create = createAd($arr);
     if($create){
@@ -72,7 +70,7 @@ if($ac == 'create'){
       echo json_encode ( array('status'=>200, 'msg'=>'ok') );exit();
     }else{
       header('HTTP/1.1 500 ERROR');
-      echo json_encode ( array('status'=>500, 'msg'=>'����������') );exit();
+      echo json_encode ( array('status'=>500, 'msg'=>'服务器错误') );exit();
     }
   }
 
