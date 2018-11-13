@@ -1,7 +1,7 @@
 <?php
 
 header("Access-Control-Allow-Origin: *");
-header("Content-type: text/html; charset=utf-8");
+header("Content-type: application/json; charset=utf-8");
 require_once("../comm/comm.php");
 $ac = empty($_GET['ac'])? '':addslashes($_GET['ac']);
 //$m = empty($_GET['m'])? '':addslashes($_GET['m']);

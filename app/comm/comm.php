@@ -1,7 +1,7 @@
 <?php
 //ini_set("display_errors", "On");
 //error_reporting(E_ALL | E_STRICT);
-header ( "Content-type: text/html; charset=UTF-8" );
+header ( "Content-type: application/json; charset=UTF-8" );
 require_once("conn_mysql.php");
 define("IMG_SITE","http://img.neotv.cn");
 define("ENCRY_KEY","snailkey2018");
@@ -9,22 +9,24 @@ define("ENCRY_KEY","snailkey2018");
 define("SMS_ACCESS_KEY","LTAIMd1LXayHKDA6");
 define("SMS_ACCESS_SECRET","3nYeOlhy5EuD7csW6H6PDtr1UxzhQI");
 define("SMS_SIGN_NAME","略合科技");
-define("SMS_TEMPLATE_CN","SMS_145255795");//国内手机号短信模板id
-define("SMS_TEMPLATE_RU","SMS_145295382");//俄罗斯手机号短信模板id
+define("SMS_REG_TEMPLATE_CN","SMS_145255795");//国内手机号短信模板id
+define("SMS_REG_TEMPLATE_RU","SMS_145295382");//俄罗斯手机号短信模板id
+define("SMS_PW_TEMPLATE_CN","SMS_145255794");//国内手机号短信模板id（忘记密码）
+define("SMS_PW_TEMPLATE_RU","SMS_150744055");//俄罗斯手机号短信模板id（忘记密码）
 
 //bonus
 define("SEND_BONUS_IDS","1,2,3,4,5");
 
 function tokenCreate($uid){
     $str = $uid."#".time();
-    return encrypt($str,ENCRY_KEY);
+    return snailEncrypt($str,ENCRY_KEY);
 }
 /**
  * token 验证
  */
 function tokenVerify($token){
-  $token = "Yltqmm2VY2lsZ56a1";
-  $decryToken = decrypt($token,ENCRY_KEY);
+  //$token = "Yltqmm2VY2lsZ56a1";
+  $decryToken = snailDecrypt($token,ENCRY_KEY);
   $check = explode('#',$decryToken);
   if(is_numeric($check[0])&& strlen($check[1])==10){
     return true;
@@ -34,7 +36,7 @@ function tokenVerify($token){
 }
 
 
-function encrypt($data, $key)
+function snailEncrypt($data, $key)
 {
 	$key	=	md5(md5($key));
     $x		=	0;
@@ -58,7 +60,7 @@ function encrypt($data, $key)
     return base64_encode($str);
 }
 
-function decrypt($data, $key)
+function snailDecrypt($data, $key)
 {
 	$key = md5(md5($key));
     $x = 0;

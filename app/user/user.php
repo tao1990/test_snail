@@ -1,7 +1,7 @@
 <?php
 
 header("Access-Control-Allow-Origin: *");
-header("Content-type: text/html; charset=utf-8");
+header("Content-type: application/json; charset=utf-8");
 require_once("../comm/comm.php");
 require_once("../../api/sms/signatureRequest.php");
 $ac = empty($_GET['ac'])? '':addslashes($_GET['ac']);
@@ -10,7 +10,7 @@ $ac = empty($_GET['ac'])? '':addslashes($_GET['ac']);
 
 /**
  * @SWG\Get(path="/app/user/user.php?ac=getCode", tags={"user"},
- *   summary="获取注册验证码",
+ *   summary="获取注册验证码(OK)",
  *   description="",
  * @SWG\Parameter(name="mobile", type="string", required=true, in="query",example = "79XXX|1XXXX"),
  * @SWG\Response(
@@ -26,18 +26,21 @@ $ac = empty($_GET['ac'])? '':addslashes($_GET['ac']);
 if($ac == 'getCode'){
     
     //phone check
-    $bodyData = @file_get_contents('php://input');
-    $bodyData = json_decode($bodyData,true);
-    $mobile = $_GET['mobile'];
+    //$bodyData = @file_get_contents('php://input');
+    //$bodyData = json_decode($bodyData,true);
+    $mobile     = $_GET['mobile'];
+    $type       = $_GET['type']=="PWD"?"REG":"PWD";
     //$hashCode - $bodyData['hashCode'];
     $firstNum = substr( $mobile, 0, 1 );
     if(strlen($mobile)==11 && ($firstNum == 1 || $firstNum == 7)){
         
-        $templateCode = SMS_TEMPLATE_CN;
+        $templateCode = $type=="REG" ? SMS_REG_TEMPLATE_CN:SMS_PWD_TEMPLATE_CN;
+        //$templateCode = SMS_REG_TEMPLATE_CN;
         $code = rand(1000,9999);
         updateVerify($mobile,$code);
         if($firstNum == 7){
-            $templateCode = SMS_TEMPLATE_RU;
+            //$templateCode = SMS_REG_TEMPLATE_RU;
+            $templateCode = $type=="REG" ? SMS_REG_TEMPLATE_RU:SMS_PWD_TEMPLATE_RU;
             $mobile = "00".$mobile;
         }
     }else{
@@ -52,7 +55,7 @@ if($ac == 'getCode'){
 
 /**
  * @SWG\Post(path="/app/user/user.php?ac=register", tags={"user"},
- *   summary="用户注册",
+ *   summary="用户注册(OK)",
  *   description="",
  *   @SWG\Parameter(name="body", type="string", required=true, in="formData",
  *     description="body" ,example = "{	'type':'CN|RU',	'mobile':'7XXX|1XXX','password1':'','password2':'',	'verifyCode':'xxxx'}"
@@ -70,6 +73,10 @@ if($ac == 'getCode'){
 if($ac == 'register'){
     
     $bodyData = @file_get_contents('php://input');
+    $logFile = fopen("./log.log", "w");
+    $txt = "$bodyData -- ".date('Y-m-d H:i:s',time())."\n";
+    fwrite($logFile, $txt);
+    fclose($logFile); 
     $bodyData = json_decode($bodyData,true);
     @$type = $bodyData['type'];
     @$mobile = $bodyData['mobile'];
@@ -78,15 +85,16 @@ if($ac == 'register'){
     @$verifyCode = $bodyData['verifyCode'];
     
     $verify = checkVerify($mobile,$verifyCode);
+  
     if($verify && $password1 && $password2 && ($password1 == $password2) && $mobile && $type){
         
-        $uid = addUser();
+        $addUser = array('mobile'=>$mobile,'type'=>$type,'password'=>$password1);
+        $uid = addUser($addUser);
         if($uid){
             //need add bonus info
             //求职+广告墙价格 100 其余都是200
             //注册送380（100+200+50+20+10）
             sendNewUserBonus($uid);
-            
             $token = tokenCreate($uid);
             $bonusInfo = getUserBonusInfo($uid);
             $resArr = array(
@@ -96,16 +104,16 @@ if($ac == 'register'){
                 'bonusInfo'=>$bonusInfo
             );
             header('HTTP/1.1 200 OK');
-            echo json_encode ( array('status'=>200, 'data'=>$resArr) );exit();
+            echo json_encode ( array('status'=>200, 'msg'=>'注册成功','data'=>$resArr) );exit();
             
         }else{
-            header('HTTP/1.1 500 注册失败');
-            echo json_encode ( array('status'=>500, 'msg'=>'注册失败') );exit();
+            header('HTTP/1.1 500 reg failed');
+            echo json_encode ( array('status'=>500, 'msg'=>'reg failed') );exit();
         }
         
     }else{
-        header('HTTP/1.1 400 参数错误');
-        echo json_encode ( array('status'=>400, 'msg'=>'参数错误') );exit();
+        header('HTTP/1.1 400 params error');
+        echo json_encode ( array('status'=>400, 'msg'=>'params error') );exit();
     }
     
     
@@ -114,7 +122,7 @@ if($ac == 'register'){
 
 /**
  * @SWG\Post(path="/app/user/user.php?ac=login", tags={"user"},
- *   summary="用户登陆",
+ *   summary="用户登陆(OK)",
  *   description="",
  *   @SWG\Parameter(name="body", type="string", required=true, in="formData",
  *     description="body" ,example = "{	'mobile':'7XXX|1XXX','password':''}"
@@ -148,7 +156,7 @@ if($ac == 'login'){
         echo json_encode ( array('status'=>200, 'data'=>$resArr) );exit();
     }else{
         header('HTTP/1.1 403 error');
-        echo json_encode ( array('status'=>403, 'msg'=>'验证失败') );exit();
+        echo json_encode ( array('status'=>403, 'msg'=>'check failed') );exit();
     }
 }
 
@@ -173,8 +181,9 @@ function sendNewUserBonus($uid){
     }
     
     foreach($bonusList as $v){
-        $conn->query("INSERT INTO `snail_user_bnous` (bonus_type_id,uid,get_time,expiry_time) VALUES ('$v[type_id]',$uid,'$v[get_time]','$v[expiry_time]');");
-        //$sql = "INSERT INTO `snail_user_bnous` (bonus_type_id,uid,get_time,expiry_time) VALUES ('$v[type_id]',$uid,'$v[get_time]','$v[expiry_time]');";
+        $a= $conn->query("INSERT INTO `snail_user_bonus` (bonus_type_id,uid,get_time,expiry_time) VALUES ('$v[type_id]',$uid,'$v[get_time]','$v[expiry_time]');");
+        //$sql = "INSERT INTO `snail_user_bonus` (bonus_type_id,uid,get_time,expiry_time) VALUES ('$v[type_id]',$uid,'$v[get_time]','$v[expiry_time]');";
+        
     }
 }
 
@@ -182,6 +191,7 @@ function sendNewUserBonus($uid){
 //获取用户红包信息
 function getUserBonusInfo($uid){
   global $conn;
+  $list = array();
   $result = $conn->query("SELECT * from `snail_user_bonus` A LEFT JOIN `snail_bonus_type` B  ON A.bonus_type_id = B.type_id WHERE A.uid = $uid;");
   while ($row = mysqli_fetch_assoc($result))
   {
@@ -207,6 +217,7 @@ function addUser($arr){
 }
 
 function checkVerify($mobile,$code){
+    global $conn;
     if($mobile && $code){
         return $conn->query("SELECT * from `snail_verify` WHERE `mobile` = '$mobile' AND `code`='$code'; ")->fetch_row();
     }else{

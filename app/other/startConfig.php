@@ -1,7 +1,7 @@
 <?php
 
 header("Access-Control-Allow-Origin: *");
-header("Content-type: text/html; charset=utf-8");
+header("Content-type: application/json; charset=utf-8");
 require_once("../comm/comm.php");
 require_once("../comm/conn_mysql.php");
 
@@ -11,7 +11,7 @@ $ac = empty($_GET['ac'])? '':addslashes($_GET['ac']);
 
 /**
  * @SWG\Get(path="/app/other/startConfig.php?ac=typelist", tags={"other"},
- *   summary="获取所有广告的type总类",
+ *   summary="获取所有广告的type总类(OK)",
  *   description="",
  * @SWG\Response(
  *   response=200,
@@ -24,11 +24,17 @@ $ac = empty($_GET['ac'])? '':addslashes($_GET['ac']);
  * )
  */
 if($ac == 'typelist'){
-
+    
+    $adList = getAdType();
     $list = getTypeList();
+    
+    $resArr = array(
+        'ad'=> $adList,
+        'post'=>$list
+    );
     if($list){
         header('HTTP/1.1 200 OK');
-        echo json_encode ( array('status'=>200, 'data'=>$list) );exit();
+        echo json_encode ( array('status'=>200, 'data'=>$resArr) );exit();
     }
 }
 
@@ -40,7 +46,18 @@ if($ac == 'typelist'){
 
 /****************************************************FUNC*************************************************************/
 
-
+function getAdType(){
+    global $conn;
+    $list = array();
+    $sql ="SELECT * from `snail_ad_type` ;";
+    $result=$conn->query($sql);
+    while ($row = mysqli_fetch_assoc($result))
+    {
+        $list[] = $row;
+    }
+    //echo json_encode ( array('status'=>200, 'data'=>$tree) );exit();
+    return $list;
+}
 
 function getTypeList(){
     global $conn;
@@ -68,7 +85,8 @@ function getTree($data, $pId)
     {
       if($v['parent_id'] == $pId)
       {
-       $v['parent_id'] = getTree($data, $v['id']);
+        if(getTree($data, $v['id'])) $v['son'] = getTree($data, $v['id']);
+       
        $tree[] = $v;
        //unset($data[$k]);
       }
