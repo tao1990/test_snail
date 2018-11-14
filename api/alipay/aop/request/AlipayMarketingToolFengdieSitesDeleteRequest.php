@@ -3,7 +3,7 @@
  * ALIPAY API: alipay.marketing.tool.fengdie.sites.delete request
  *
  * @author auto create
- * @since 1.0, 2018-08-19 16:17:44
+ * @since 1.0, 2017-10-16 20:18:07
  */
 class AlipayMarketingToolFengdieSitesDeleteRequest
 {

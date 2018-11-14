@@ -75,7 +75,7 @@ if($ac == 'create'){
     $arr['industry_type'] = empty($bodyData['industry_type'])? '':$bodyData['industry_type'];
     $arr['salary'] = empty($bodyData['salary'])? '':$bodyData['salary'];
     $arr['salary_type'] = empty($bodyData['salary_type'])? 'RMB':$bodyData['salary_type'];
-    $arr['sex'] = empty($bodyData['sex'])? '男'?:$bodyData['sex'];
+    $arr['sex'] = empty($bodyData['sex'])? '男':$bodyData['sex'];
     $arr['age'] = empty($bodyData['age'])? '':$bodyData['age'];
     $arr['content'] = empty($bodyData['content'])? '':$bodyData['content'];
     $arr['contacts_man'] = empty($bodyData['contacts_man'])? '':$bodyData['contacts_man'];
@@ -88,7 +88,7 @@ if($ac == 'create'){
         $postId = createOccup($arr);
         if($postId){
             header('HTTP/1.1 200 ok');
-            echo json_encode ( array('status'=>200, 'postId'=>$postId) );exit();
+            echo json_encode ( array('status'=>200,'msg'=>'创建成功', 'postId'=>$postId) );exit();
         }else{
             header('HTTP/1.1 500 SERVER ERROR');
             echo json_encode ( array('status'=>500, 'msg'=>'SERVER ERROR') );exit();

@@ -25,12 +25,11 @@ $ac = empty($_GET['ac'])? '':addslashes($_GET['ac']);
  * )
  */
 if($ac == 'getCode'){
-    
     //phone check
     //$bodyData = @file_get_contents('php://input');
     //$bodyData = json_decode($bodyData,true);
-    $mobile     = $_GET['mobile'];
-    $type       = $_GET['type'] == "PWD" ? "PWD":"REG";
+    $mobile     = @$_GET['mobile'];
+    $type       = @$_GET['type'] == "PWD" ? "PWD":"REG";
     //$hashCode - $bodyData['hashCode'];
 
     $firstNum = substr( $mobile, 0, 1 );
@@ -52,7 +51,7 @@ if($ac == 'getCode'){
    
     $res = sendSms($mobile,$templateCode,$code);
     header('HTTP/1.1 200 OK');
-    echo json_encode ( array('status'=>200, 'data'=>$res) );exit();
+    echo json_encode ( array('status'=>200,'msg'=>'发送成功','data'=>$res) );exit();
 }
 
 /**
@@ -75,10 +74,10 @@ if($ac == 'getCode'){
 if($ac == 'register'){
     
     $bodyData = @file_get_contents('php://input');
-    $logFile = fopen("./log.log", "w");
-    $txt = "$bodyData -- ".date('Y-m-d H:i:s',time())."\n";
-    fwrite($logFile, $txt);
-    fclose($logFile); 
+    //$logFile = fopen("./log.log", "w");
+//    $txt = "$bodyData -- ".date('Y-m-d H:i:s',time())."\n";
+//    fwrite($logFile, $txt);
+//    fclose($logFile); 
     $bodyData = json_decode($bodyData,true);
     @$type = $bodyData['type'];
     @$mobile = $bodyData['mobile'];
@@ -155,14 +154,63 @@ if($ac == 'login'){
             'bonusInfo'=>$bonusInfo
         );
         header('HTTP/1.1 200 OK');
-        echo json_encode ( array('status'=>200, 'data'=>$resArr) );exit();
+        echo json_encode ( array('status'=>200,'msg'=>'登录成功', 'data'=>$resArr) );exit();
     }else{
         header('HTTP/1.1 403 error');
         echo json_encode ( array('status'=>403, 'msg'=>'check failed') );exit();
     }
 }
 
+/**
+ * @SWG\Post(path="/app/user/user.php?ac=changePassword", tags={"user"},
+ *   summary="更改用户密码(OK)",
+ *   description="",
+ *   @SWG\Parameter(name="body", type="string", required=true, in="formData",
+ *     description="body" ,example = "{	'mobile':'7XXX|1XXX','password1':'','password2':'','type':'CN|RU','verifyCode':''}"
+ *   ),
+ * @SWG\Response(
+ *   response=200,
+ *   description="ok response",
+ *   ),
+ * @SWG\Response(
+ *   response="default",
+ *   description="unexpected error",
+ *   )
+ * )
+ */
+if($ac == 'changePassword'){
+    $bodyData = @file_get_contents('php://input');
+    //$logFile = fopen("./log.log", "w");
+//    $txt = "$bodyData -- ".date('Y-m-d H:i:s',time())."\n";
+//    fwrite($logFile, $txt);
+//    fclose($logFile); 
+    $bodyData = json_decode($bodyData,true);
+    @$type = $bodyData['type'];
+    @$mobile = $bodyData['mobile'];
+    @$password1 = $bodyData['password1'];
+    @$password2 = $bodyData['password2'];
+    @$verifyCode = $bodyData['verifyCode'];
 
+    $verify = checkVerify($mobile,$verifyCode);
+
+    if($verify && $password1 && $password2 && ($password1 == $password2) && $mobile && $type){
+        
+        $arr = array('mobile'=>$mobile,'type'=>$type,'password'=>$password1);
+        $change = changePw($arr);
+        if($change){
+            header('HTTP/1.1 200 OK');
+            echo json_encode ( array('status'=>200, 'msg'=>'密码修改成功') );exit();
+            
+        }else{
+            header('HTTP/1.1 500  failed');
+            echo json_encode ( array('status'=>500, 'msg'=>'failed') );exit();
+        }
+        
+    }else{
+        header('HTTP/1.1 400 params error');
+        echo json_encode ( array('status'=>400, 'msg'=>'params error') );exit();
+    }
+}
 
 
 
@@ -216,6 +264,16 @@ function addUser($arr){
     $res = $conn->query("INSERT INTO `snail_user` (username,mobile,type,password) VALUES ('$username','$mobile','$type','$password');");
     $uid = $conn->insert_id;
     return $uid;
+}
+
+function changePw($arr){
+    global $conn;
+    $username = "";
+    $mobile = $arr['mobile'];
+    $type   = $arr['type'];
+    $password = md5($arr['password']);
+    $do = $conn->query("UPDATE `snail_user` SET `password` = '$password' WHERE `mobile` = '$mobile' AND `type` = '$type';");
+    return $do;
 }
 
 function checkVerify($mobile,$code){

@@ -3,7 +3,7 @@
  * ALIPAY API: alipay.marketing.tool.fengdie.sites.sync request
  *
  * @author auto create
- * @since 1.0, 2018-08-19 16:17:26
+ * @since 1.0, 2017-10-16 20:19:38
  */
 class AlipayMarketingToolFengdieSitesSyncRequest
 {

@@ -3,7 +3,7 @@
  * ALIPAY API: zhima.customer.certification.query request
  *
  * @author auto create
- * @since 1.0, 2018-08-29 14:41:48
+ * @since 1.0, 2017-06-07 14:25:49
  */
 class ZhimaCustomerCertificationQueryRequest
 {

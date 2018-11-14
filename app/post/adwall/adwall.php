@@ -81,7 +81,7 @@ if($ac == 'create'){
         $postId = createAdwall($arr);
         if($postId){
             header('HTTP/1.1 200 ok');
-            echo json_encode ( array('status'=>200, 'postId'=>$postId) );exit();
+            echo json_encode ( array('status'=>200,'msg'=>'创建成功', 'postId'=>$postId) );exit();
         }else{
             header('HTTP/1.1 500 SERVER ERROR');
             echo json_encode ( array('status'=>500, 'msg'=>'SERVER ERROR') );exit();

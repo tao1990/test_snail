@@ -1,6 +1,7 @@
 <?php
 
 require_once 'AopEncrypt.php';
+require_once 'SignData.php';
 
 class AopClient {
 	//应用ID
@@ -56,7 +57,7 @@ class AopClient {
 
 	public $encryptType = "AES";
 
-	protected $alipaySdkVersion = "alipay-sdk-php-20180705";
+	protected $alipaySdkVersion = "alipay-sdk-php-20161101";
 
 	public function generateSign($params, $signType = "RSA") {
 		return $this->sign($this->getSignContent($params), $signType);
@@ -534,14 +535,13 @@ class AopClient {
 				$signData = $this->parserJSONSignData($request, $resp, $respObject);
 			}
 		} else if ("xml" == $this->format) {
-			$disableLibxmlEntityLoader = libxml_disable_entity_loader(true);
+
 			$respObject = @ simplexml_load_string($resp);
 			if (false !== $respObject) {
 				$respWellFormed = true;
 
 				$signData = $this->parserXMLSignData($request, $resp);
 			}
-			libxml_disable_entity_loader($disableLibxmlEntityLoader);
 		}
 
 
@@ -570,9 +570,7 @@ class AopClient {
 				$resp = $this->encryptXMLSignSource($request, $resp);
 
 				$r = iconv($this->postCharset, $this->fileCharset . "//IGNORE", $resp);
-				$disableLibxmlEntityLoader = libxml_disable_entity_loader(true);
 				$respObject = @ simplexml_load_string($r);
-				libxml_disable_entity_loader($disableLibxmlEntityLoader);
 
 			}
 		}
@@ -678,11 +676,10 @@ class AopClient {
 
 		//调用openssl内置方法验签，返回bool值
 
-		$result = FALSE;
 		if ("RSA2" == $signType) {
-			$result = (openssl_verify($data, base64_decode($sign), $res, OPENSSL_ALGO_SHA256)===1);
+			$result = (bool)openssl_verify($data, base64_decode($sign), $res, OPENSSL_ALGO_SHA256);
 		} else {
-			$result = (openssl_verify($data, base64_decode($sign), $res)===1);
+			$result = (bool)openssl_verify($data, base64_decode($sign), $res);
 		}
 
 		if(!$this->checkEmpty($this->alipayPublicKey)) {
@@ -909,7 +906,7 @@ class AopClient {
 
 	function parserJSONSource($responseContent, $nodeName, $nodeIndex) {
 		$signDataStartIndex = $nodeIndex + strlen($nodeName) + 2;
-		$signIndex = strrpos($responseContent, "\"" . $this->SIGN_NODE_NAME . "\"");
+		$signIndex = strpos($responseContent, "\"" . $this->SIGN_NODE_NAME . "\"");
 		// 签名前-逗号
 		$signDataEndIndex = $signIndex - 1;
 		$indexLen = $signDataEndIndex - $signDataStartIndex;
@@ -970,7 +967,7 @@ class AopClient {
 
 	function parserXMLSource($responseContent, $nodeName, $nodeIndex) {
 		$signDataStartIndex = $nodeIndex + strlen($nodeName) + 1;
-		$signIndex = strrpos($responseContent, "<" . $this->SIGN_NODE_NAME . ">");
+		$signIndex = strpos($responseContent, "<" . $this->SIGN_NODE_NAME . ">");
 		// 签名前-逗号
 		$signDataEndIndex = $signIndex - 1;
 		$indexLen = $signDataEndIndex - $signDataStartIndex + 1;
