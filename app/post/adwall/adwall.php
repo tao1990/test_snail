@@ -10,7 +10,7 @@ $token = empty($_GET['token'])? '':addslashes($_GET['token']);
 
 /**
  * @SWG\Get(path="/app/post/adwall/adwall.php?ac=list", tags={"post"},
- *   summary="系统广告列表(OK)",
+ *   summary="获取广告墙列表(OK)",
  *   description="",
  *   @SWG\Parameter(name="type", type="string", required=true, in="query"),
  *   @SWG\Parameter(name="page", type="integer", required=true, in="query",example = "1"),
@@ -44,7 +44,7 @@ if($ac == 'list'){
 
 /**
  * @SWG\Post(path="/app/post/adwall/adwall.php?ac=create", tags={"post"},
- *   summary="创建系统广告(OK)",
+ *   summary="创建广告墙(OK)",
  *   description="",
  *   @SWG\Parameter(name="token", type="string", required=true, in="query",
  *     description="token"
@@ -70,11 +70,12 @@ if($ac == 'create'){
   if(tokenVerify($token)){
     $arr['uid'] = empty($bodyData['uid'])? 0:$bodyData['uid'];
     $arr['type']  = empty($bodyData['type'])? '':$bodyData['type'];
+    $arr['title'] = empty($bodyData['title'])? '':$bodyData['title'];
     $arr['content'] = empty($bodyData['content'])? '':$bodyData['content'];
     $arr['contacts_man'] = empty($bodyData['contacts_man'])? '':$bodyData['contacts_man'];
     $arr['contacts_mobile'] = empty($bodyData['contacts_mobile'])? '':$bodyData['contacts_mobile'];
     
-    if($arr['uid'] == 0 || !$arr['type'] || !$arr['content'] || !$arr['contacts_man'] || !$arr['contacts_mobile']){
+    if($arr['uid'] == 0 || !$arr['type'] || !$arr['title'] || !$arr['content'] || !$arr['contacts_man'] || !$arr['contacts_mobile']){
         header('HTTP/1.1 400 ERROR');
         echo json_encode ( array('status'=>400, 'msg'=>'error') );exit();
     }else{
@@ -106,8 +107,8 @@ function createAdwall($arr){
   global $conn;
   $time = time();
   $post_id = 0;
-  $sql="INSERT INTO `snail_post_adwall` (uid,type,content,contacts_man,contacts_mobile,status)
-  VALUES (".$arr['uid'].",'".$arr['type']."','".$arr['content']."','".$arr['contacts_man']."','".$arr['contacts_mobile']."',0);";
+  $sql="INSERT INTO `snail_post_adwall` (uid,type,title,content,contacts_man,contacts_mobile,status)
+  VALUES (".$arr['uid'].",'".$arr['type']."','".$arr['title']."','".$arr['content']."','".$arr['contacts_man']."','".$arr['contacts_mobile']."',0);";
  
   $conn->query($sql);
   $insert_id = $conn->insert_id;
@@ -132,7 +133,12 @@ function getAdWallListByType($type,$page=1,$pageCount=10){
     $result=$conn->query($sql);
     while ($row = mysqli_fetch_assoc($result))
     {
-      $list[] = $row;
+      $row2['id']       = $row['id'];
+      $row2['type']     = "ADWALL";  
+      $row2['typename'] = $row['type'];
+      $row2['title']    = $row['title'];
+      $row2['start_date']     = $row['start_date'];
+      $list[] = $row2;
     }
    
     return array('total'=>$total,'list'=>$list);

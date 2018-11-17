@@ -26,15 +26,17 @@ $token = empty($_GET['token'])? '':addslashes($_GET['token']);
  * )
  */
 if($ac == 'list'){
-    die;
   $type = empty($_GET['type'])? '':addslashes($_GET['type']);
+  $region = empty($_GET['region'])? '':addslashes($_GET['region']);
+  $marketing = empty($_GET['marketing'])? '':addslashes($_GET['marketing']);
+  $money = empty($_GET['money'])? 0:addslashes($_GET['money']);
   $page = isset($_GET['page'])?$_GET['page']:1;
   $pageCount = isset($_GET['pageCount'])?$_GET['pageCount']:10;
   if(!$page || !$pageCount){
     header('HTTP/1.1 400 ERROR');
-    echo json_encode ( array('status'=>400, 'msg'=>'鍙傛暟閿欒') );exit();
+    echo json_encode ( array('status'=>400, 'msg'=>'error') );exit();
   }else{
-    $list = getAdWallListByType($type,$page,$pageCount);
+    $list = getBoxListByType($type,$region,$marketing,$money,$page,$pageCount);
     if($list){
         header('HTTP/1.1 200 OK');
         echo json_encode ( array('status'=>200, 'data'=>array('total'=>$list['total'],'list'=>$list['list'])) );exit();
@@ -126,19 +128,35 @@ function createBoxShop($arr){
   return $post_id;
 }
 
-function getAdWallListByType($type,$page=1,$pageCount=10){
+function getBoxListByType($type,$region,$marketing,$money,$page=1,$pageCount=10){
     global $conn;
     $list = array();
     $time = time();
     $offset=($page-1)*$pageCount;
+    $sqlStr = "";
+    $sqlStr.= $type? " AND type = '$type'":"";
+    $sqlStr.= $region? " AND region = '$region'":"";
+    $sqlStr.= $marketing? " AND marketing = '$marketing'":"";
+    $a = explode(',',$money);
+    if(count($a)>1){
+        $sqlStr.=" AND money BETWEEN ".$a[0]." AND ".$a[1];
+    }else{
+        $sqlStr.=" AND money <= ".$money;
+    }
     
-    $sqlStr = $type? " AND type = '$type'":"";
-    $total = $conn->query("SELECT * from `snail_post_adwall` WHERE `status` = 1 AND `start_date` < $time AND `end_date` > $time $sqlStr;")->num_rows;
-    $sql="SELECT * from `snail_post_adwall` WHERE `status` = 1 AND `start_date` < $time AND `end_date` > $time $sqlStr limit $offset,$pageCount;";
+    $total = $conn->query("SELECT * from `snail_post_boxshop` WHERE `status` = 1 AND `start_date` < $time AND `end_date` > $time $sqlStr;")->num_rows;
+    $sql="SELECT * from `snail_post_boxshop` WHERE `status` = 1 AND `start_date` < $time AND `end_date` > $time $sqlStr limit $offset,$pageCount;";
     $result=$conn->query($sql);
     while ($row = mysqli_fetch_assoc($result))
     {
-      $list[] = $row;
+      $row2['id']       = $row['id'];
+      $row2['type']     = "BOXSHOP";  
+      $row2['typename'] = $row['type'];
+      $row2['title']    = $row['title'];
+      $row2['region']    = $row['region'];
+      $row2['marketing']    = $row['marketing'];
+      $row2['start_date']     = $row['start_date'];
+      $list[] = $row2;
     }
    
     return array('total'=>$total,'list'=>$list);

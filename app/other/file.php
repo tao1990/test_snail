@@ -13,7 +13,7 @@ $ac = empty($_GET['ac'])? '':$_GET['ac'];
 
 /**
  * @SWG\Post(path="/app/other/file.php?ac=upload", tags={"other"},
- *   summary="图片上传",
+ *   summary="图片上传(ok)",
  *   description="",
  *   @SWG\Parameter(name="img", type="file", required=true, in="formData",
  *     description="file" 

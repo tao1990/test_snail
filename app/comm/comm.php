@@ -1,7 +1,10 @@
 <?php
 //ini_set("display_errors", "On");
 //error_reporting(E_ALL | E_STRICT);
-//header ( "Content-type: application/json; charset=UTF-8" );
+header("Access-Control-Allow-Origin:*"); 
+header('Access-Control-Allow-Headers:x-requested-with,content-type'); 
+header("Content-type: application/json; charset=UTF-8");
+//header ( "Content-type: text/html; charset=UTF-8" );
 require_once("conn_mysql.php");
 define("IMG_SITE","http://img.neotv.cn");
 define("ENCRY_KEY","snailkey2018");
@@ -24,21 +27,32 @@ define("ZFB_PUBLIC_KEY","MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA2lggOh2XIpc
 define("SEND_BONUS_IDS","1,2,3,4,5");
 
 function tokenCreate($uid){
+    //return md5(md5($uid."#".ENCRY_KEY));
     $str = $uid."#".time();
     return snailEncrypt($str,ENCRY_KEY);
 }
 /**
  * token 验证
  */
-function tokenVerify($token){
+function tokenVerify($token,$uid){
   //$token = "Yltqmm2VY2lsZ56a1";
   $decryToken = snailDecrypt($token,ENCRY_KEY);
   $check = explode('#',$decryToken);
-  if(is_numeric($check[0])&& strlen($check[1])==10){
-    return true;
+
+  if($uid){
+    if($check[0] == $uid && is_numeric($check[0])&& strlen($check[1])==10){
+        return true;
+    }else{
+        return false;
+    }
   }else{
-    return false;
+    if(is_numeric($check[0])&& strlen($check[1])==10){
+        return true;
+    }else{
+        return false;
+    }
   }
+  
 }
 
 
