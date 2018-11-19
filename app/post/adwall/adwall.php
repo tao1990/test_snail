@@ -12,7 +12,7 @@ $token = empty($_GET['token'])? '':addslashes($_GET['token']);
  * @SWG\Get(path="/app/post/adwall/adwall.php?ac=list", tags={"post"},
  *   summary="获取广告墙列表(OK)",
  *   description="",
- *   @SWG\Parameter(name="type", type="string", required=true, in="query"),
+ *   @SWG\Parameter(name="type", type="string", required=true, in="query",example = "中文type类型"),
  *   @SWG\Parameter(name="page", type="integer", required=true, in="query",example = "1"),
  *   @SWG\Parameter(name="pageCount", type="integer", required=true, in="query",example = "10"),
  * @SWG\Response(
@@ -46,11 +46,8 @@ if($ac == 'list'){
  * @SWG\Post(path="/app/post/adwall/adwall.php?ac=create", tags={"post"},
  *   summary="创建广告墙(OK)",
  *   description="",
- *   @SWG\Parameter(name="token", type="string", required=true, in="query",
- *     description="token"
- *   ),
  *   @SWG\Parameter(name="body", type="string", required=true, in="formData",
- *     description="body" ,example = "{	'uid':'','type':'',	'content':'','contacts_man':'','contacts_mobile':''}"
+ *     description="body" ,example = "{'token':'',	'uid':'','type':'',	'content':'','contacts_man':'','contacts_mobile':''}"
  *   ),
  * @SWG\Response(
  *   response=200,
@@ -64,9 +61,11 @@ if($ac == 'list'){
  */
 if($ac == 'create'){
     
-  $token = empty($_GET['token'])? '':$_GET['token'];
+  //$token = empty($_GET['token'])? '':$_GET['token'];
   $bodyData = @file_get_contents('php://input');
   $bodyData = json_decode($bodyData,true);
+  
+  $token  = empty($bodyData['token'])? '':$bodyData['token'];
   if(tokenVerify($token)){
     $arr['uid'] = empty($bodyData['uid'])? 0:$bodyData['uid'];
     $arr['type']  = empty($bodyData['type'])? '':$bodyData['type'];
@@ -134,10 +133,10 @@ function getAdWallListByType($type,$page=1,$pageCount=10){
     while ($row = mysqli_fetch_assoc($result))
     {
       $row2['id']       = $row['id'];
-      $row2['type']     = "ADWALL";  
-      $row2['typename'] = $row['type'];
+      $row2['typeCode']     = "ADWALL";  
+      $row2['typeName'] = $row['type'];
       $row2['title']    = $row['title'];
-      $row2['start_date']     = $row['start_date'];
+      $row2['startDate']     = $row['start_date'];
       $list[] = $row2;
     }
    

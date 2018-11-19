@@ -9,10 +9,11 @@ $token = empty($_GET['token'])? '':addslashes($_GET['token']);
 
 
 /**
- * @SWG\Get(path="/app/post/occup/occup.php?ac=list", tags={"post"},
- *   summary="获取招聘求职列表",
+ * @SWG\Get(path="/app/post/package/package.php?ac=list", tags={"post"},
+ *   summary="求职招聘列表(OK)",
  *   description="",
- *   @SWG\Parameter(name="type", type="string", required=true, in="query"),
+ *   @SWG\Parameter(name="type", type="string", required=true, in="query",example = "全职招聘|兼职招聘|我要求职"),
+ *   @SWG\Parameter(name="workType", type="string", required=true, in="query",example = "工种"),
  *   @SWG\Parameter(name="page", type="integer", required=true, in="query",example = "1"),
  *   @SWG\Parameter(name="pageCount", type="integer", required=true, in="query",example = "10"),
  * @SWG\Response(
@@ -26,15 +27,15 @@ $token = empty($_GET['token'])? '':addslashes($_GET['token']);
  * )
  */
 if($ac == 'list'){
-    die;
   $type = empty($_GET['type'])? '':addslashes($_GET['type']);
+  $workType = empty($_GET['workType'])? '':addslashes($_GET['workType']);
   $page = isset($_GET['page'])?$_GET['page']:1;
   $pageCount = isset($_GET['pageCount'])?$_GET['pageCount']:10;
   if(!$page || !$pageCount){
     header('HTTP/1.1 400 ERROR');
     echo json_encode ( array('status'=>400, 'msg'=>'error') );exit();
   }else{
-    $list = getAdWallListByType($type,$page,$pageCount);
+    $list = getOccupByType($type,$workType,$page,$pageCount);
     if($list){
         header('HTTP/1.1 200 OK');
         echo json_encode ( array('status'=>200, 'data'=>array('total'=>$list['total'],'list'=>$list['list'])) );exit();
@@ -47,11 +48,9 @@ if($ac == 'list'){
  * @SWG\Post(path="/app/post/occup/occup.php?ac=create", tags={"post"},
  *   summary="创建求职招聘(OK)",
  *   description="",
- *   @SWG\Parameter(name="token", type="string", required=true, in="query",
- *     description="token"
- *   ),
+
  *   @SWG\Parameter(name="body", type="string", required=true, in="formData",
- *     description="body" ,example = "{	'uid':1,	'type':'全职招聘',	'title':'招聘001',work_type':'翻译',	'industry_type':'餐饮',	'salary':'5000',	'salary_type':'RMB',	'sex':'0',	'age':'10',	'content':'jian简述。。。。',	'contacts_man':'lianxiren',	'contacts_man':'lianxiren',	'contacts_mobile':'17621090121'}"
+ *     description="body" ,example = "{	'token':'','uid':1,	'type':'全职招聘',	'title':'招聘001',work_type':'翻译',	'industry_type':'餐饮',	'salary':'5000',	'salary_type':'RMB',	'sex':'0',	'age':'10',	'content':'jian简述。。。。',	'contacts_man':'lianxiren',	'contacts_man':'lianxiren',	'contacts_mobile':'17621090121'}"
  *   ),
  * @SWG\Response(
  *   response=200,
@@ -64,9 +63,10 @@ if($ac == 'list'){
  * )
  */
 if($ac == 'create'){
-  $token = empty($_GET['token'])? '':$_GET['token'];
+  //$token = empty($_GET['token'])? '':$_GET['token'];
   $bodyData = @file_get_contents('php://input');
   $bodyData = json_decode($bodyData,true);
+  $token = empty($bodyData['token'])? '':$bodyData['token'];
   if(tokenVerify($token)){
     $arr['uid'] = empty($bodyData['uid'])? 0:$bodyData['uid'];
     $arr['type']  = empty($bodyData['type'])? '':$bodyData['type'];
@@ -124,22 +124,45 @@ function createOccup($arr){
   return $post_id;
 }
 
-function getAdWallListByType($type,$page=1,$pageCount=10){
+function getOccupByType($type,$workType,$page=1,$pageCount=10){
     global $conn;
     $list = array();
     $time = time();
     $offset=($page-1)*$pageCount;
-    
-    $sqlStr = $type? " AND type = '$type'":"";
-    $total = $conn->query("SELECT * from `snail_post_adwall` WHERE `status` = 1 AND `start_date` < $time AND `end_date` > $time $sqlStr;")->num_rows;
-    $sql="SELECT * from `snail_post_adwall` WHERE `status` = 1 AND `start_date` < $time AND `end_date` > $time $sqlStr limit $offset,$pageCount;";
+    $sqlStr = "";
+    $sqlStr.= $type? " AND type = '$type'":"";
+    $sqlStr.= $workType? " AND work_type = '$workType'":"";
+    $total = $conn->query("SELECT * from `snail_post_occup` WHERE `status` = 1 AND `start_date` < $time AND `end_date` > $time $sqlStr;")->num_rows;
+    $sql="SELECT * from `snail_post_occup` WHERE `status` = 1 AND `start_date` < $time AND `end_date` > $time $sqlStr limit $offset,$pageCount;";
     $result=$conn->query($sql);
     while ($row = mysqli_fetch_assoc($result))
     {
-      $list[] = $row;
+      $row2['id']       = $row['id'];
+      $row2['typeCode'] = getOccupCode($row['type']);
+      $row2['typeName'] = $row['type'];
+      $row2['title']    = $row['title'];
+      $row2['tag1']    = getOccupTag($row['type']);
+      $row2['tag2']    = $row['work_type'];
+      $row2['tag3']    = $row['industry_type'];
+      $row2['salary']    = $row['salary'];
+      $row2['salaryType']    = $row['salary_type'];
+      $row2['startDate']     = $row['start_date'];
+      $list[] = $row2;
     }
    
     return array('total'=>$total,'list'=>$list);
+}
+
+
+function getOccupCode($str){
+    if($str == "全职招聘") return "FULLTIME";
+    if($str == "兼职招聘") return "PARTTIME";
+    if($str == "我要求职") return "PARTTIME";
+}
+function getOccupTag($str){
+    if($str == "全职招聘") return "全职";
+    if($str == "兼职招聘") return "兼职";
+    if($str == "我要求职") return "求职";
 }
 /**************************************demo**********************************************/
 /*

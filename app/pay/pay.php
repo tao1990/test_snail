@@ -52,7 +52,7 @@
         $aop->format='json';
         $request = new AlipayTradeQueryRequest();
         $request->setBizContent("{" .
-        "\"out_trade_no\":\"201811131442888\"," .
+        "\"out_trade_no\":\"2018111314428888\"," .
         "\"trade_no\":\"\"," .
         "\"org_pid\":\"\"" .
         "  }");

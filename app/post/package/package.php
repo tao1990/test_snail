@@ -9,10 +9,10 @@ $token = empty($_GET['token'])? '':addslashes($_GET['token']);
 
 
 /**
- * @SWG\Get(path="/app/post/house/house.php?ac=list", tags={"post"},
- *   summary="跨境包裹列表（未实现）",
+ * @SWG\Get(path="/app/post/package/package.php?ac=list", tags={"post"},
+ *   summary="获取跨境包裹列表(OK)",
  *   description="",
- *   @SWG\Parameter(name="type", type="string", required=true, in="query"),
+ *   @SWG\Parameter(name="type", type="string", required=true, in="query",example = "中文type类型"),
  *   @SWG\Parameter(name="page", type="integer", required=true, in="query",example = "1"),
  *   @SWG\Parameter(name="pageCount", type="integer", required=true, in="query",example = "10"),
  * @SWG\Response(
@@ -26,7 +26,6 @@ $token = empty($_GET['token'])? '':addslashes($_GET['token']);
  * )
  */
 if($ac == 'list'){
-    die;
   $type = empty($_GET['type'])? '':addslashes($_GET['type']);
   $page = isset($_GET['page'])?$_GET['page']:1;
   $pageCount = isset($_GET['pageCount'])?$_GET['pageCount']:10;
@@ -34,7 +33,7 @@ if($ac == 'list'){
     header('HTTP/1.1 400 ERROR');
     echo json_encode ( array('status'=>400, 'msg'=>'error') );exit();
   }else{
-    $list = getAdWallListByType($type,$page,$pageCount);
+    $list = getPackageByType($type,$page,$pageCount);
     if($list){
         header('HTTP/1.1 200 OK');
         echo json_encode ( array('status'=>200, 'data'=>array('total'=>$list['total'],'list'=>$list['list'])) );exit();
@@ -47,11 +46,8 @@ if($ac == 'list'){
  * @SWG\Post(path="/app/post/package/package.php?ac=create", tags={"post"},
  *   summary="创建跨境包裹(OK)",
  *   description="",
- *   @SWG\Parameter(name="token", type="string", required=true, in="query",
- *     description="token"
- *   ),
  *   @SWG\Parameter(name="body", type="string", required=true, in="formData",
- *     description="body" ,example = "{	'uid':'','type':'','company':'','company_info':'','company_business':'','company_city':'','contacts_man':'','contacts_mobile':''}"
+ *     description="body" ,example = "{	'token':'','uid':'','type':'','company':'','company_info':'','company_business':'','company_city':'','contacts_man':'','contacts_mobile':''}"
  *   ),
  * @SWG\Response(
  *   response=200,
@@ -64,9 +60,10 @@ if($ac == 'list'){
  * )
  */
 if($ac == 'create'){
-  $token = empty($_GET['token'])? '':$_GET['token'];
+  //$token = empty($_GET['token'])? '':$_GET['token'];
   $bodyData = @file_get_contents('php://input');
   $bodyData = json_decode($bodyData,true);
+  $token = empty($bodyData['token'])? '':$bodyData['token'];
   if(tokenVerify($token)){
     $arr['uid'] = empty($bodyData['uid'])? 0:$bodyData['uid'];
     $arr['type']  = empty($bodyData['type'])? '':$bodyData['type'];
@@ -121,19 +118,24 @@ function createPackage($arr){
   return $post_id;
 }
 
-function getAdWallListByType($type,$page=1,$pageCount=10){
+function getPackageByType($type,$page=1,$pageCount=10){
     global $conn;
     $list = array();
     $time = time();
     $offset=($page-1)*$pageCount;
     
     $sqlStr = $type? " AND type = '$type'":"";
-    $total = $conn->query("SELECT * from `snail_post_adwall` WHERE `status` = 1 AND `start_date` < $time AND `end_date` > $time $sqlStr;")->num_rows;
-    $sql="SELECT * from `snail_post_adwall` WHERE `status` = 1 AND `start_date` < $time AND `end_date` > $time $sqlStr limit $offset,$pageCount;";
+    $total = $conn->query("SELECT * from `snail_post_package` WHERE `status` = 1 AND `start_date` < $time AND `end_date` > $time $sqlStr;")->num_rows;
+    $sql="SELECT * from `snail_post_package` WHERE `status` = 1 AND `start_date` < $time AND `end_date` > $time $sqlStr limit $offset,$pageCount;";
     $result=$conn->query($sql);
     while ($row = mysqli_fetch_assoc($result))
     {
-      $list[] = $row;
+      $row2['id']       = $row['id'];
+      $row2['typeCode']     = "PACKAGE";  
+      $row2['typeName'] = $row['type'];
+      $row2['title']    = $row['company'];
+      $row2['startDate']     = $row['start_date'];
+      $list[] = $row2;
     }
    
     return array('total'=>$total,'list'=>$list);

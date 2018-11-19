@@ -11,7 +11,7 @@ $ac = empty($_GET['ac'])? '':addslashes($_GET['ac']);
  *   summary="建议箱",
  *   description="",
  *   @SWG\Parameter(name="body", type="string", required=true, in="formData",
- *     description="body" ,example = "{	'suggest':'',	'contact_man':'','contact_mobile':''}"
+ *     description="body" ,example = "{	'suggest':'',	'contact_man':'','contact_mobile':'','wechat':''}"
  *   ),
  * @SWG\Response(
  *   response=200,

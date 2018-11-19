@@ -10,9 +10,12 @@ $token = empty($_GET['token'])? '':addslashes($_GET['token']);
 
 /**
  * @SWG\Get(path="/app/post/boxshop/boxshop.php?ac=list", tags={"post"},
- *   summary="获取箱铺列表（未实现）",
+ *   summary="获取箱铺列表（ok）",
  *   description="",
- *   @SWG\Parameter(name="type", type="string", required=true, in="query"),
+ *   @SWG\Parameter(name="type", type="string", required=false, in="query",example = "中文type类型"),
+ *   @SWG\Parameter(name="region", type="string", required=false, in="query",example = "中文region"),
+ *   @SWG\Parameter(name="marketing", type="string", required=false, in="query",example = "中文marketing"),
+ *   @SWG\Parameter(name="money", type="string", required=false, in="query",example = "101,200(101到200之间)|0（无限制）|100（100以下）"),
  *   @SWG\Parameter(name="page", type="integer", required=true, in="query",example = "1"),
  *   @SWG\Parameter(name="pageCount", type="integer", required=true, in="query",example = "10"),
  * @SWG\Response(
@@ -49,11 +52,8 @@ if($ac == 'list'){
  * @SWG\Post(path="/app/post/boxshop/boxshop.php?ac=create", tags={"post"},
  *   summary="创建箱铺出租(OK)",
  *   description="",
- *   @SWG\Parameter(name="token", type="string", required=true, in="query",
- *     description="token"
- *   ),
  *   @SWG\Parameter(name="body", type="string", required=true, in="formData",
- *     description="body" ,example = "{	'uid':'','type':'','title':'','region':'','tags':'{'电梯':true,'无线网络':true}','money':'','area':'','imgs':'['/url1','/url2']','contacts_man':'','contacts_mobile':''}"
+ *     description="body" ,example = "{	'token':'','uid':'','type':'','title':'','region':'','tags':'{'电梯':true,'无线网络':true}','money':'','area':'','imgs':'['/url1','/url2']','contacts_man':'','contacts_mobile':''}"
  *   ),
  * @SWG\Response(
  *   response=200,
@@ -66,9 +66,11 @@ if($ac == 'list'){
  * )
  */
 if($ac == 'create'){
-  $token = empty($_GET['token'])? '':$_GET['token'];
+  //$token = empty($_GET['token'])? '':$_GET['token'];
   $bodyData = @file_get_contents('php://input');
   $bodyData = json_decode($bodyData,true);
+  
+  $token  = empty($bodyData['token'])? '':$bodyData['token'];
   if(tokenVerify($token)){
     $arr['uid'] = empty($bodyData['uid'])? 0:$bodyData['uid'];
     $arr['type']  = empty($bodyData['type'])? '':$bodyData['type'];
@@ -137,11 +139,13 @@ function getBoxListByType($type,$region,$marketing,$money,$page=1,$pageCount=10)
     $sqlStr.= $type? " AND type = '$type'":"";
     $sqlStr.= $region? " AND region = '$region'":"";
     $sqlStr.= $marketing? " AND marketing = '$marketing'":"";
-    $a = explode(',',$money);
-    if(count($a)>1){
-        $sqlStr.=" AND money BETWEEN ".$a[0]." AND ".$a[1];
-    }else{
-        $sqlStr.=" AND money <= ".$money;
+    if($money != 0){
+        $a = explode(',',$money);
+        if(count($a)>1){
+            $sqlStr.=" AND money BETWEEN ".$a[0]." AND ".$a[1];
+        }else{
+            $sqlStr.=" AND money <= ".$money;
+        }
     }
     
     $total = $conn->query("SELECT * from `snail_post_boxshop` WHERE `status` = 1 AND `start_date` < $time AND `end_date` > $time $sqlStr;")->num_rows;
@@ -150,12 +154,12 @@ function getBoxListByType($type,$region,$marketing,$money,$page=1,$pageCount=10)
     while ($row = mysqli_fetch_assoc($result))
     {
       $row2['id']       = $row['id'];
-      $row2['type']     = "BOXSHOP";  
-      $row2['typename'] = $row['type'];
+      $row2['typeCode']     = "BOXSHOP";  
+      $row2['typeName'] = $row['type'];
       $row2['title']    = $row['title'];
       $row2['region']    = $row['region'];
       $row2['marketing']    = $row['marketing'];
-      $row2['start_date']     = $row['start_date'];
+      $row2['startDate']     = $row['start_date'];
       $list[] = $row2;
     }
    
