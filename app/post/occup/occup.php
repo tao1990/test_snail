@@ -1,7 +1,7 @@
 <?php
 
 header("Access-Control-Allow-Origin: *");
-header("Content-type: application/json; charset=utf-8");
+//header("Content-type: application/json; charset=utf-8");
 require_once("../../comm/comm.php");
 
 $ac = empty($_GET['ac'])? '':addslashes($_GET['ac']);
@@ -9,7 +9,7 @@ $token = empty($_GET['token'])? '':addslashes($_GET['token']);
 
 
 /**
- * @SWG\Get(path="/app/post/package/package.php?ac=list", tags={"post"},
+ * @SWG\Get(path="/app/post/occup/occup.php?ac=list", tags={"post"},
  *   summary="求职招聘列表(OK)",
  *   description="",
  *   @SWG\Parameter(name="type", type="string", required=true, in="query",example = "全职招聘|兼职招聘|我要求职"),
@@ -80,6 +80,7 @@ if($ac == 'create'){
     $arr['content'] = empty($bodyData['content'])? '':$bodyData['content'];
     $arr['contacts_man'] = empty($bodyData['contacts_man'])? '':$bodyData['contacts_man'];
     $arr['contacts_mobile'] = empty($bodyData['contacts_mobile'])? '':$bodyData['contacts_mobile'];
+    $amount = $arr['type']=="FIND"? 100:200;
     
     if( $arr['uid'] == 0 || !$arr['type'] || !$arr['title'] || !$arr['contacts_man'] || !$arr['contacts_mobile']){
         header('HTTP/1.1 400 ERROR');
@@ -88,7 +89,7 @@ if($ac == 'create'){
         $postId = createOccup($arr);
         if($postId){
             header('HTTP/1.1 200 ok');
-            echo json_encode ( array('status'=>200,'msg'=>'创建成功', 'postId'=>$postId) );exit();
+            echo json_encode ( array('status'=>200,'msg'=>'创建成功', 'postId'=>$postId,'amount'=>$amount) );exit();
         }else{
             header('HTTP/1.1 500 SERVER ERROR');
             echo json_encode ( array('status'=>500, 'msg'=>'SERVER ERROR') );exit();

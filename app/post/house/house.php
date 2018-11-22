@@ -1,7 +1,7 @@
 <?php
 
 header("Access-Control-Allow-Origin: *");
-header("Content-type: application/json; charset=utf-8");
+//header("Content-type: application/json; charset=utf-8");
 require_once("../../comm/comm.php");
 
 $ac = empty($_GET['ac'])? '':addslashes($_GET['ac']);
@@ -69,6 +69,10 @@ if($ac == 'list'){
 if($ac == 'create'){
   //$token = empty($_GET['token'])? '':$_GET['token'];
   $bodyData = @file_get_contents('php://input');
+  $logFile = fopen("./houselog.log", "w");
+    $txt = "$bodyData -- ".date('Y-m-d H:i:s',time())."\n";
+    fwrite($logFile, $txt);
+    fclose($logFile); 
   $bodyData = json_decode($bodyData,true);
   $token = empty($bodyData['token'])? '':$bodyData['token'];
   
@@ -76,7 +80,7 @@ if($ac == 'create'){
     $arr['uid'] = empty($bodyData['uid'])? 0:$bodyData['uid'];
     $arr['type']  = empty($bodyData['type'])? '':$bodyData['type'];
     $arr['title'] = empty($bodyData['title'])? '':$bodyData['title'];
-    $arr['tags'] = empty($bodyData['tags'])? '':$bodyData['tags'];
+    $arr['tags'] = empty($bodyData['tags'])? '':json_encode($bodyData['tags'],JSON_UNESCAPED_UNICODE);
     $arr['traffic'] = empty($bodyData['traffic'])? '':$bodyData['traffic'];
     $arr['space'] = empty($bodyData['space'])? '':$bodyData['space'];
     $arr['area'] = empty($bodyData['area'])? 0:$bodyData['area'];
@@ -84,7 +88,7 @@ if($ac == 'create'){
     $arr['middle_man'] = empty($bodyData['middle_man'])? 0:$bodyData['middle_man'];
     $arr['deposit_cash'] = empty($bodyData['deposit_cash'])? 0:$bodyData['deposit_cash'];
     $arr['house_desc'] = empty($bodyData['house_desc'])? '':$bodyData['house_desc'];
-    $arr['imgs'] = empty($bodyData['imgs'])? '':$bodyData['imgs'];
+    $arr['imgs'] = empty($bodyData['imgs'])? '':json_encode($bodyData['imgs'],JSON_UNESCAPED_UNICODE);
     $arr['contacts_man'] = empty($bodyData['contacts_man'])? '':$bodyData['contacts_man'];
     $arr['contacts_mobile'] = empty($bodyData['contacts_mobile'])? '':$bodyData['contacts_mobile'];
     
@@ -95,7 +99,7 @@ if($ac == 'create'){
         $postId = createHouse($arr);
         if($postId){
             header('HTTP/1.1 200 ok');
-            echo json_encode ( array('status'=>200,'msg'=>'创建成功', 'postId'=>$postId) );exit();
+            echo json_encode ( array('status'=>200,'msg'=>'创建成功', 'postId'=>$postId,'amount'=>200) );exit();
         }else{
             header('HTTP/1.1 500 SERVER ERROR');
             echo json_encode ( array('status'=>500, 'msg'=>'SERVER ERROR') );exit();

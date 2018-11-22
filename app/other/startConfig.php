@@ -29,6 +29,7 @@ if($ac == 'typelist'){
     $list = getTypeList();
     
     $resArr = array(
+        'openSwitch'=>false,
         'ad'=> $adList,
         'post'=>$list
     );

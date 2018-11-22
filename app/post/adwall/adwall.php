@@ -1,7 +1,7 @@
 <?php
 
 header("Access-Control-Allow-Origin: *");
-header("Content-type: application/json; charset=utf-8");
+//header("Content-type: application/json; charset=utf-8");
 require_once("../../comm/comm.php");
 
 $ac = empty($_GET['ac'])? '':addslashes($_GET['ac']);
@@ -63,6 +63,10 @@ if($ac == 'create'){
     
   //$token = empty($_GET['token'])? '':$_GET['token'];
   $bodyData = @file_get_contents('php://input');
+  $logFile = fopen("./log.log", "w");
+    $txt = "$bodyData -- ".date('Y-m-d H:i:s',time())."\n";
+    fwrite($logFile, $txt);
+    fclose($logFile); 
   $bodyData = json_decode($bodyData,true);
   
   $token  = empty($bodyData['token'])? '':$bodyData['token'];
@@ -81,7 +85,9 @@ if($ac == 'create'){
         $postId = createAdwall($arr);
         if($postId){
             header('HTTP/1.1 200 ok');
-            echo json_encode ( array('status'=>200,'msg'=>'创建成功', 'postId'=>$postId) );exit();
+            echo json_encode ( array('status'=>200,'msg'=>'创建成功', 'postId'=>$postId,'amount'=>100) );exit();
+            //echo json_encode ( array('status'=>200,'msg'=>'创建成功', 'data'=>array('postId'=>$postId)) );exit();
+            //echo 'laji';exit();
         }else{
             header('HTTP/1.1 500 SERVER ERROR');
             echo json_encode ( array('status'=>500, 'msg'=>'SERVER ERROR') );exit();

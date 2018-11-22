@@ -1,7 +1,7 @@
 <?php
 
 header("Access-Control-Allow-Origin: *");
-header("Content-type: application/json; charset=utf-8");
+//header("Content-type: application/json; charset=utf-8");
 require_once("../../comm/comm.php");
 
 $ac = empty($_GET['ac'])? '':addslashes($_GET['ac']);
@@ -53,7 +53,7 @@ if($ac == 'list'){
  *   summary="创建箱铺出租(OK)",
  *   description="",
  *   @SWG\Parameter(name="body", type="string", required=true, in="formData",
- *     description="body" ,example = "{	'token':'','uid':'','type':'','title':'','region':'','tags':'{'电梯':true,'无线网络':true}','money':'','area':'','imgs':'['/url1','/url2']','contacts_man':'','contacts_mobile':''}"
+ *     description="body" ,example = "{	'token':'','uid':'','type':'','title':'','region':'','marketing':'','tags':'{'电梯':true,'无线网络':true}','money':'','area':'','content':'','imgs':'['/url1','/url2']','contacts_man':'','contacts_mobile':''}"
  *   ),
  * @SWG\Response(
  *   response=200,
@@ -68,8 +68,11 @@ if($ac == 'list'){
 if($ac == 'create'){
   //$token = empty($_GET['token'])? '':$_GET['token'];
   $bodyData = @file_get_contents('php://input');
+  $logFile = fopen("./boxlog.log", "w");
+    $txt = "$bodyData -- ".date('Y-m-d H:i:s',time())."\n";
+    fwrite($logFile, $txt);
+    fclose($logFile); 
   $bodyData = json_decode($bodyData,true);
-  
   $token  = empty($bodyData['token'])? '':$bodyData['token'];
   if(tokenVerify($token)){
     $arr['uid'] = empty($bodyData['uid'])? 0:$bodyData['uid'];
@@ -77,10 +80,11 @@ if($ac == 'create'){
     $arr['title'] = empty($bodyData['title'])? '':$bodyData['title'];
     $arr['region'] = empty($bodyData['region'])? '':$bodyData['region'];
     $arr['marketing'] = empty($bodyData['marketing'])? '':$bodyData['marketing'];
-    $arr['tags'] = empty($bodyData['tags'])? '':$bodyData['tags'];
+    $arr['tags'] = empty($bodyData['tags'])? '':json_encode($bodyData['tags'],JSON_UNESCAPED_UNICODE);
     $arr['money'] = empty($bodyData['money'])? 0:$bodyData['money'];
     $arr['area'] = empty($bodyData['area'])? '':$bodyData['area'];
-    $arr['imgs'] = empty($bodyData['imgs'])? '':$bodyData['imgs'];
+    $arr['content'] = empty($bodyData['content'])? '':$bodyData['content'];
+    $arr['imgs'] = empty($bodyData['imgs'])? '':json_encode($bodyData['imgs'],JSON_UNESCAPED_UNICODE);
     $arr['contacts_man'] = empty($bodyData['contacts_man'])? '':$bodyData['contacts_man'];
     $arr['contacts_mobile'] = empty($bodyData['contacts_mobile'])? '':$bodyData['contacts_mobile'];
     
@@ -91,7 +95,7 @@ if($ac == 'create'){
         $postId = createBoxShop($arr);
         if($postId){
             header('HTTP/1.1 200 ok');
-            echo json_encode ( array('status'=>200,'msg'=>'创建成功', 'postId'=>$postId) );exit();
+            echo json_encode ( array('status'=>200,'msg'=>'创建成功', 'postId'=>$postId,'amount'=>200) );exit();
         }else{
             header('HTTP/1.1 500 SERVER ERROR');
             echo json_encode ( array('status'=>500, 'msg'=>'SERVER ERROR') );exit();
@@ -116,8 +120,9 @@ function createBoxShop($arr){
   global $conn;
   $time = time();
   $post_id = 0;
-  $sql="INSERT INTO `snail_post_boxshop` (uid,type,title,region,marketing,tags,money,area,imgs,contacts_man,contacts_mobile,status)
-  VALUES (".$arr['uid'].",'".$arr['type']."','".$arr['title']."','".$arr['region']."','".$arr['marketing']."','".$arr['tags']."','".$arr['money']."','".$arr['area']."','".$arr['imgs']."','".$arr['contacts_man']."','".$arr['contacts_mobile']."',0);";
+  
+  $sql="INSERT INTO `snail_post_boxshop` (uid,type,title,region,marketing,tags,money,area,content,imgs,contacts_man,contacts_mobile,status)
+  VALUES (".$arr['uid'].",'".$arr['type']."','".$arr['title']."','".$arr['region']."','".$arr['marketing']."','".$arr['tags']."','".$arr['money']."','".$arr['area']."','".$arr['content']."','".$arr['imgs']."','".$arr['contacts_man']."','".$arr['contacts_mobile']."',0);";
  
   $conn->query($sql);
   $insert_id = $conn->insert_id;

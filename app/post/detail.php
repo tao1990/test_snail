@@ -58,7 +58,8 @@ function getDetail($type,$id){
     $result=$conn->query($sql);
     while ($row = mysqli_fetch_assoc($result))
     {
-        
+        if($row['tags'])$row['tags'] = json_decode($row['tags']); 
+        if($row['imgs'])$row['imgs'] = json_decode($row['imgs']); 
         $info[] = $row;
     }
    

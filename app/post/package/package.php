@@ -1,7 +1,7 @@
 <?php
 
 header("Access-Control-Allow-Origin: *");
-header("Content-type: application/json; charset=utf-8");
+//header("Content-type: application/json; charset=utf-8");
 require_once("../../comm/comm.php");
 
 $ac = empty($_GET['ac'])? '':addslashes($_GET['ac']);
@@ -47,7 +47,7 @@ if($ac == 'list'){
  *   summary="创建跨境包裹(OK)",
  *   description="",
  *   @SWG\Parameter(name="body", type="string", required=true, in="formData",
- *     description="body" ,example = "{	'token':'','uid':'','type':'','company':'','company_info':'','company_business':'','company_city':'','contacts_man':'','contacts_mobile':''}"
+ *     description="body" ,example = "{	'token':'','uid':'','type':'','company':'','logo':'url','company_info':'','company_business':'','company_city':'','contacts_man':'','contacts_mobile':''}"
  *   ),
  * @SWG\Response(
  *   response=200,
@@ -62,12 +62,17 @@ if($ac == 'list'){
 if($ac == 'create'){
   //$token = empty($_GET['token'])? '':$_GET['token'];
   $bodyData = @file_get_contents('php://input');
+  $logFile = fopen("./log.log", "w");
+  $txt = "$bodyData -- ".date('Y-m-d H:i:s',time())."\n";
+  fwrite($logFile, $txt);
+  fclose($logFile); 
   $bodyData = json_decode($bodyData,true);
   $token = empty($bodyData['token'])? '':$bodyData['token'];
   if(tokenVerify($token)){
     $arr['uid'] = empty($bodyData['uid'])? 0:$bodyData['uid'];
     $arr['type']  = empty($bodyData['type'])? '':$bodyData['type'];
     $arr['company'] = empty($bodyData['company'])? '':$bodyData['company'];
+    $arr['logo'] = empty($bodyData['logo'])? '':$bodyData['logo'];
     $arr['company_info'] = empty($bodyData['company_info'])? '':$bodyData['company_info'];
     $arr['company_business'] = empty($bodyData['company_business'])? '':$bodyData['company_business'];
     $arr['company_city'] = empty($bodyData['company_city'])? '':$bodyData['company_city'];
@@ -81,7 +86,7 @@ if($ac == 'create'){
         $postId = createPackage($arr);
         if($postId){
             header('HTTP/1.1 200 ok');
-            echo json_encode ( array('status'=>200,'msg'=>'创建成功', 'postId'=>$postId) );exit();
+            echo json_encode ( array('status'=>200,'msg'=>'创建成功', 'postId'=>$postId,'amount'=>200) );exit();
         }else{
             header('HTTP/1.1 500 SERVER ERROR');
             echo json_encode ( array('status'=>500, 'msg'=>'SERVER ERROR') );exit();
@@ -105,8 +110,8 @@ function createPackage($arr){
   global $conn;
   $time = time();
   $post_id = 0;
-  $sql="INSERT INTO `snail_post_package` (uid,type,company,company_info,company_business,company_city,contacts_man,contacts_mobile,status)
-  VALUES (".$arr['uid'].",'".$arr['type']."','".$arr['company']."','".$arr['company_info']."','".$arr['company_business']."','".$arr['company_city']."','".$arr['contacts_man']."','".$arr['contacts_mobile']."',0);";
+  $sql="INSERT INTO `snail_post_package` (uid,type,company,logo,company_info,company_business,company_city,contacts_man,contacts_mobile,status)
+  VALUES (".$arr['uid'].",'".$arr['type']."','".$arr['company']."','".$arr['logo']."','".$arr['company_info']."','".$arr['company_business']."','".$arr['company_city']."','".$arr['contacts_man']."','".$arr['contacts_mobile']."',0);";
  
   $conn->query($sql);
   $insert_id = $conn->insert_id;
@@ -134,6 +139,7 @@ function getPackageByType($type,$page=1,$pageCount=10){
       $row2['typeCode']     = "PACKAGE";  
       $row2['typeName'] = $row['type'];
       $row2['title']    = $row['company'];
+      $row2['logo']     = $row['logo'];
       $row2['startDate']     = $row['start_date'];
       $list[] = $row2;
     }

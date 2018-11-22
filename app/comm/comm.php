@@ -1,6 +1,6 @@
 <?php
-//ini_set("display_errors", "On");
-//error_reporting(E_ALL | E_STRICT);
+ini_set("display_errors", "Off");
+error_reporting(0);
 header("Access-Control-Allow-Origin:*"); 
 header('Access-Control-Allow-Headers:x-requested-with,content-type'); 
 header("Content-type: application/json; charset=UTF-8");
@@ -34,12 +34,12 @@ function tokenCreate($uid){
 /**
  * token 验证
  */
-function tokenVerify($token,$uid){
+function tokenVerify($token,$uid=0){
   //$token = "Yltqmm2VY2lsZ56a1";
   $decryToken = snailDecrypt($token,ENCRY_KEY);
   $check = explode('#',$decryToken);
 
-  if($uid){
+  if($uid>0){
     if($check[0] == $uid && is_numeric($check[0])&& strlen($check[1])==10){
         return true;
     }else{
