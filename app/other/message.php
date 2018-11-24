@@ -98,8 +98,16 @@ function getMessageInfoList($uid,$type){
     $collectRes = $conn->query("SELECT type,title,content,dateline FROM `snail_message` WHERE uid = $uid AND type = '$type' ORDER BY dateline DESC;");
     while ($row = mysqli_fetch_assoc($collectRes))
     {
+      $row['content'] = analysisContent($row['content']);
       $list[] = $row;
     }
     return $list;
 }
+
+function analysisContent($str){
+    
+       return explode('\n',$str);
+    
+}
+
 

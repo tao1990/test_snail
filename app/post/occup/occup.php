@@ -86,7 +86,7 @@ if($ac == 'create'){
         header('HTTP/1.1 400 ERROR');
         echo json_encode ( array('status'=>400, 'msg'=>'params error') );exit();
     }else{
-        $postId = createOccup($arr);
+        $postId = createOccup($arr,$amount);
         if($postId){
             header('HTTP/1.1 200 ok');
             echo json_encode ( array('status'=>200,'msg'=>'创建成功', 'postId'=>$postId,'amount'=>$amount) );exit();
@@ -118,7 +118,7 @@ function createOccup($arr){
   $conn->query($sql);
   $insert_id = $conn->insert_id;
   if($insert_id){
-        $sql="INSERT INTO `snail_post_log` (post_id,post_type,uid,dateline) VALUES (".$insert_id.",'OCCUP','".$arr['uid']."',$time)";
+        $sql="INSERT INTO `snail_post_log` (insert_id,post_type,amount,uid,dateline) VALUES (".$insert_id.",'OCCUP',$amount,".$arr['uid'].",$time)";
         $conn->query($sql);
         $post_id = $conn->insert_id;
   }

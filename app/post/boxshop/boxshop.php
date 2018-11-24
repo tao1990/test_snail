@@ -127,7 +127,7 @@ function createBoxShop($arr){
   $conn->query($sql);
   $insert_id = $conn->insert_id;
   if($insert_id){
-        $sql="INSERT INTO `snail_post_log` (post_id,post_type,uid,dateline) VALUES (".$insert_id.",'BOXSHOP','".$arr['uid']."',$time)";
+        $sql="INSERT INTO `snail_post_log` (insert_id,post_type,amount,uid,dateline) VALUES (".$insert_id.",'BOXSHOP',200,".$arr['uid'].",$time)";
         $conn->query($sql);
         $post_id = $conn->insert_id;
   }
@@ -163,6 +163,7 @@ function getBoxListByType($type,$region,$marketing,$money,$page=1,$pageCount=10)
       $row2['typeName'] = $row['type'];
       $row2['title']    = $row['title'];
       $row2['region']    = $row['region'];
+      $row2['money']    = $row['money'];
       $row2['marketing']    = $row['marketing'];
       $row2['startDate']     = $row['start_date'];
       $list[] = $row2;

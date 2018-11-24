@@ -30,42 +30,32 @@ if($ac == 'create'){
     $bodyData = @file_get_contents('php://input');
     $bodyData = json_decode($bodyData,true);
     $uid    = empty($bodyData['uid'])? 0 : intval($bodyData['uid']);
-    $token  = empty($bodyData['token'])? '' : intval($bodyData['token']);
+    $token  = empty($bodyData['token'])? '' : $bodyData['token'];
     $postId = empty($bodyData['postId'])? 0 : intval($bodyData['postId']);
     $bonusId = empty($bodyData['bonusId'])? 0 : intval($bodyData['bonusId']);
     $payMethod = empty($bodyData['payMethod'])? '' : $bodyData['payMethod'];
     
     
-    
-    if($uid > 0 && $postId > 0 && in_array($payMethod,array('WECHAT','ALIPAY'))){
-        
-    }
-    die;
-    
-    $mobile     = @$_GET['mobile'];
-    $type       = @$_GET['type'] == "PWD" ? "PWD":"REG";
-    //$hashCode - $bodyData['hashCode'];
-
-    $firstNum = substr( $mobile, 0, 1 );
-    if(strlen($mobile)==11 && ($firstNum == 1 || $firstNum == 7)){
-        
-        $templateCode = $type=="REG" ? SMS_REG_TEMPLATE_CN:SMS_PWD_TEMPLATE_CN;
-        //$templateCode = SMS_REG_TEMPLATE_CN;
-        $code = rand(1000,9999);
-        updateVerify($mobile,$code);
-        if($firstNum == 7){
-            //$templateCode = SMS_REG_TEMPLATE_RU;
-            $templateCode = $type=="REG" ? SMS_REG_TEMPLATE_RU:SMS_PWD_TEMPLATE_RU;
-            $mobile = "00".$mobile;
+    if($uid > 0 && tokenVerify($token,$uid) && $postId > 0 && in_array($payMethod,array('WECHAT','ALIPAY'))){
+        $postInfo = getPostInfo($postId,$uid);
+        if($postInfo){
+            
+            if($bonusId>0){
+                $bonusInfo = checkBonus($bonusId,$uid,$postInfo['post_type']);
+            }
+            createOrder($postInfo);
+            //if($bonusInfo) useBonus($bonusId);
         }
+        print_r($postInfo);
     }else{
         header('HTTP/1.1 400 参数错误');
         echo json_encode ( array('status'=>400, 'msg'=>'参数错误') );exit();
     }
+    die;
+    
+  
    
-    $res = sendSms($mobile,$templateCode,$code);
-    header('HTTP/1.1 200 OK');
-    echo json_encode ( array('status'=>200,'msg'=>'发送成功','data'=>$res) );exit();
+    
 }
 
 
@@ -73,6 +63,34 @@ if($ac == 'create'){
 
 
 /****************************************************FUNC*************************************************************/
+
+function createOrder(){
+    
+}
+function useBonus(){
+    
+}
+
+function getPostInfo($postId,$uid){
+    global $conn;
+    return $conn->query("SELECT * from `snail_post_log` WHERE `id` = $postId AND `uid`=$uid; ")->fetch_assoc();
+}
+
+function checkBonus($bonusId,$uid,$post_type){
+    global $conn;
+    $res = false;
+    $bonus = $conn->query("SELECT * from `snail_user_bonus` WHERE `bonus_id` = $bonusId AND `uid`=$uid; ")->fetch_assoc();
+    if($bonus){
+        $info = $conn->query("SELECT * from `snail_bonus_type` WHERE `type_id` = ".$bonus['bonus_type_id']."; ")->fetch_assoc();
+        if($info){
+            $typeArr = json_decode($info['post_type_json']);
+            if(in_array('ALL',$typeArr) || in_array($post_type,$typeArr)){
+              $res = $info;
+            }
+        }
+    }
+    return $res;
+}
 
 
 //获取用户红包信息
