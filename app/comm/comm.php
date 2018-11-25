@@ -6,6 +6,7 @@ header('Access-Control-Allow-Headers:x-requested-with,content-type');
 header("Content-type: application/json; charset=UTF-8");
 //header ( "Content-type: text/html; charset=UTF-8" );
 require_once("conn_mysql.php");
+require_once("func_order.php");
 define("IMG_SITE","http://img.neotv.cn");
 define("ENCRY_KEY","snailkey2018");
 //aliyun sms
@@ -26,6 +27,8 @@ define("ZFB_PUBLIC_KEY","MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA2lggOh2XIpc
 //bonus
 define("SEND_BONUS_IDS","1,2,3,4,5");
 
+//order
+define("DEFAULT_TERM",30);//广告默认展示期限
 function tokenCreate($uid){
     //return md5(md5($uid."#".ENCRY_KEY));
     $str = $uid."#".time();

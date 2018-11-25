@@ -78,37 +78,104 @@ if($ac == 'create'){
         header('HTTP/1.1 400 参数错误');
         echo json_encode ( array('status'=>400, 'msg'=>'参数错误') );exit();
     }
-    die;
     
-  
-   
     
 }
 
+/**
+ * @SWG\Get(path="/app/order/order.php?ac=list", tags={"order"},
+ *   summary="订单列表",
+ *   description="",
+ *   @SWG\Parameter(name="uid", type="integer", required=true, in="query",example = ""),
+ *   @SWG\Parameter(name="token", type="string", required=true, in="query",example = ""),
+ *   @SWG\Parameter(name="status", type="string", required=false, in="query",example = "CREATED|PAIDED|CANCEL"),
+ * @SWG\Response(
+ *   response=200,
+ *   description="ok response",
+ *   ),
+ * @SWG\Response(
+ *   response="default",
+ *   description="unexpected error",
+ *   )
+ * )
+ */
+if($ac == "list"){
+    
+    $uid    = empty($_GET['uid'])? 0 : intval($_GET['uid']);
+    $token  = empty($_GET['token'])? 0 : $_GET['token'];
+    $status = empty($_GET['status'])? '' : $_GET['status'];
+    
+    if($uid > 0 && tokenVerify($token,$uid) && in_array($status,array('CREATED','PAIDED','CANNCEL',''))){
+        $list = array();
+        $list = getOrderList($uid,$status);
+        
+        header('HTTP/1.1 200 ok');
+        echo json_encode ( array('status'=>200, 'data'=>$list) );exit();
+    }else{
+        header('HTTP/1.1 400 参数错误');
+        echo json_encode ( array('status'=>400, 'msg'=>'参数错误') );exit();
+    }
+}
 
-
+/**
+ * @SWG\Get(path="/app/order/order.php?ac=cancel", tags={"order"},
+ *   summary="订单取消",
+ *   description="",
+ *   @SWG\Parameter(name="uid", type="integer", required=true, in="query",example = ""),
+ *   @SWG\Parameter(name="token", type="string", required=true, in="query",example = ""),
+ *   @SWG\Parameter(name="orderSn", type="string", required=trye, in="query",example = ""),
+ * @SWG\Response(
+ *   response=200,
+ *   description="ok response",
+ *   ),
+ * @SWG\Response(
+ *   response="default",
+ *   description="unexpected error",
+ *   )
+ * )
+ */
+if($ac == "cancel"){
+    $uid    = empty($_GET['uid'])? 0 : intval($_GET['uid']);
+    $token  = empty($_GET['token'])? 0 : $_GET['token'];
+    $orderSn = empty($_GET['orderSn'])? '' : $_GET['orderSn'];
+    if($uid > 0 && tokenVerify($token,$uid) && $orderSn){
+        
+        snail_update("snail_order_info",array('status'=>'CANCEL'),"order_sn=$orderSn AND uid=$uid");
+        header('HTTP/1.1 200 ok');
+        echo json_encode ( array('status'=>200, 'msg'=>'取消成功') );exit();
+    }else{
+        header('HTTP/1.1 400 参数错误');
+        echo json_encode ( array('status'=>400, 'msg'=>'参数错误') );exit();
+    }
+    
+}
 
 
 /****************************************************FUNC*************************************************************/
-//改变订单状态
-function changeOrderStatus($orderSn,$arr){
+
+
+
+
+function getOrderList($uid,$status){
     global $conn;
-    $time = time();
-    if($orderSn && $arr['status']){
-        if($arr['status'] == "PAIDED"){
-            if($arr['paid_amount']) $arr['paid_amount'] = $arr['paid_amount'];
-            $arr['pay_time'] = $time;
-            if($arr['platform_id']) $arr['platform_id'] = $arr['platform_id'];
-            if($arr['callback']) $arr['callback'] = $arr['callback'];
-            $arr['status'] = "PAIDED";
-        }elseif($arr['status'] == "CANCEL"){
-            $arr['status'] = "CANCEL";
-        }
+    $sqlStr = $status? " AND A.status = '$status'":"";
+    $sql="SELECT * from `snail_order_info` A LEFT JOIN `snail_post_log` B ON A.post_id = B.id WHERE A.uid = $uid $sqlStr;";
+    $result=$conn->query($sql);
+    while ($row = mysqli_fetch_assoc($result))
+    {
+      $row2['order_sn'] = $row['order_sn'];  
+      $row2['amount'] = $row['amount'];  
+      $row2['final_amount'] = $row['final_amount'];  
+      $row2['status'] = $row['status'];  
+      $row2['type'] = $row['post_type']; 
+      $row2['create_time'] = $row['create_time'];  
+      $row2['create_time'] = $row['create_time'];  
+      $list[] = $row2;
     }
-    return snail_update('snail_order_info',$arr,"order_sn=$orderSn");
-    //return $conn->query("UPDATE `snail_user_bonus` SET `used_time` = $time,`order_sn` = '$order_sn' WHERE `bonus_id` = $bonusId;");
-    
+    return $list;
 }
+
+
 
 function getOrderSn(){
     return date('YmdH') . str_pad(mt_rand(1, 99999999), 8, '0', STR_PAD_LEFT);
@@ -124,6 +191,7 @@ function createOrder($postInfo,$bonusInfo){
     $arr['final_amount']= $postInfo['amount'];
     $arr['create_time'] = time();
     $arr['pay_method']  = $postInfo['payMethod'];
+    $arr['term']        = DEFAULT_TERM;
     $arr['status']      = "CREATED";
     if($bonusInfo){
         $arr['bonus_id']      = $bonusInfo['bonus_id'];

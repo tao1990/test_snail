@@ -166,10 +166,10 @@ function getHouseList($type,$rent,$space,$order="DESC",$page=1,$pageCount=10){
       $row2['space']    = getAreaInfo($row['space']);
       $row2['area']    = $row['area'];
       $row2['money']    = $row['rent'];
+      $row2['img']      = json_decode($row['imgs'])[0];
       $row2['startDate']     = $row['start_date'];
       $list[] = $row2;
     }
-   
     return array('total'=>$total,'list'=>$list);
 }
 
