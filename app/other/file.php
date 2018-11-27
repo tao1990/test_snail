@@ -77,8 +77,8 @@ if($ac == 'upload'){
  * @SWG\Post(path="/app/other/file.php?ac=avatarUpload", tags={"other"},
  *   summary="头像上传(ok)",
  *   description="",
- *   @SWG\Parameter(name="uid", type="file", required=true, in="query",
- *     description="query" 
+ *   @SWG\Parameter(name="uid", type="string", required=true, in="query",
+ *     description="uid" 
  *   ),
  *   @SWG\Parameter(name="img", type="file", required=true, in="formData",
  *     description="file" 

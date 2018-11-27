@@ -18,6 +18,7 @@ $token = empty($_GET['token'])? '':addslashes($_GET['token']);
  *   @SWG\Parameter(name="order", type="string", required=false, in="query",example = "ASC|DESC"),
  *   @SWG\Parameter(name="page", type="integer", required=true, in="query",example = "1"),
  *   @SWG\Parameter(name="pageCount", type="integer", required=true, in="query",example = "10"),
+ *   @SWG\Parameter(name="uid", type="integer", required=false, in="query",example = "传入uid时返回collect状态"),
  * @SWG\Response(
  *   response=200,
  *   description="ok response",
@@ -29,6 +30,8 @@ $token = empty($_GET['token'])? '':addslashes($_GET['token']);
  * )
  */
 if($ac == 'list'){
+
+  $uid = empty($_GET['uid'])? 0:intval($_GET['uid']);
   $type = empty($_GET['type'])? '':addslashes($_GET['type']);
   $rent = empty($_GET['money'])? 0:addslashes($_GET['money']);
   $space = empty($_GET['space'])? '':addslashes($_GET['space']);
@@ -40,6 +43,9 @@ if($ac == 'list'){
     echo json_encode ( array('status'=>400, 'msg'=>'error') );exit();
   }else{
     $list = getHouseList($type,$rent,$space,$order,$page,$pageCount);
+    if($uid>0){
+        $list['list'] = addCollectStatus($list['list'],$uid);
+    }
     if($list){
         header('HTTP/1.1 200 OK');
         echo json_encode ( array('status'=>200, 'data'=>array('total'=>$list['total'],'list'=>$list['list'])) );exit();
@@ -171,6 +177,25 @@ function getHouseList($type,$rent,$space,$order="DESC",$page=1,$pageCount=10){
       $list[] = $row2;
     }
     return array('total'=>$total,'list'=>$list);
+}
+
+function addCollectStatus($list,$uid){
+    global $conn;
+    $sql = "SELECT * FROM `snail_collect` WHERE uid = $uid AND type='HOUSE_RENT';";
+    $result=$conn->query($sql);
+    $collectArr = array();
+    while ($row = mysqli_fetch_assoc($result))
+    {
+      array_push($collectArr,$row['insert_id']);
+    }
+    foreach($list as $k=>$v){
+        if(in_array($v['id'],$collectArr)){
+            $list[$k]['collected'] = true;
+        }else{
+            $list[$k]['collected'] = false;
+        }
+    }
+    return $list;
 }
 
 function getAreaInfo($str){
