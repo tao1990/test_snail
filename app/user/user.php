@@ -78,6 +78,7 @@ if($ac == 'register'){
 //    $txt = "$bodyData -- ".date('Y-m-d H:i:s',time())."\n";
 //    fwrite($logFile, $txt);
 //    fclose($logFile); 
+    snail_log($bodyData);
     $bodyData = json_decode($bodyData,true);
     @$type = $bodyData['type'];
     @$mobile = $bodyData['mobile'];
@@ -140,6 +141,7 @@ if($ac == 'register'){
  */
 if($ac == 'login'){
     $bodyData = @file_get_contents('php://input');
+    snail_log($bodyData);
     $bodyData = json_decode($bodyData,true);
     $mobile = $bodyData['mobile'];
     $password = $bodyData['password'];

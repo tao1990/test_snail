@@ -30,9 +30,9 @@ $ac = empty($_GET['ac'])? '':addslashes($_GET['ac']);
 $type = empty($_GET['typeCode'])? "":$_GET['typeCode'];
 $id = empty($_GET['id'])? 0:$_GET['id'];
 if($id>0 && in_array($type,array('OCCUP','ADWALL','PACKAGE','BOXSHOP','HOUSE_RENT'))){
-    $list = getDetail($type,$id);
+    $info = getDetail($type,$id);
     header('HTTP/1.1 200 OK');
-    echo json_encode ( array('status'=>200, 'data'=>$list) );exit();
+    echo json_encode ( array('status'=>200, 'data'=>$info) );exit();
 }else{
     header('HTTP/1.1 403 error');
     echo json_encode ( array('status'=>403, 'msg'=>'error') );exit();
@@ -62,8 +62,7 @@ function getDetail($type,$id){
         if($row['imgs'])$row['imgs'] = json_decode($row['imgs']); 
         $info[] = $row;
     }
-   
-    return $info;
+    return $info[0];
 }
 
 

@@ -31,6 +31,7 @@ if($ac == 'list'){
   $workType = empty($_GET['workType'])? '':addslashes($_GET['workType']);
   $page = isset($_GET['page'])?$_GET['page']:1;
   $pageCount = isset($_GET['pageCount'])?$_GET['pageCount']:10;
+  
   if(!$page || !$pageCount){
     header('HTTP/1.1 400 ERROR');
     echo json_encode ( array('status'=>400, 'msg'=>'error') );exit();
@@ -65,6 +66,7 @@ if($ac == 'list'){
 if($ac == 'create'){
   //$token = empty($_GET['token'])? '':$_GET['token'];
   $bodyData = @file_get_contents('php://input');
+  snail_log($bodyData);
   $bodyData = json_decode($bodyData,true);
   $token = empty($bodyData['token'])? '':$bodyData['token'];
   if(tokenVerify($token)){

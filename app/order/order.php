@@ -29,6 +29,7 @@ if($ac == 'create'){
     //phone check
     $resArr = array();
     $bodyData = @file_get_contents('php://input');
+    snail_log($bodyData);
     $bodyData = json_decode($bodyData,true);
     $uid    = empty($bodyData['uid'])? 0 : intval($bodyData['uid']);
     $token  = empty($bodyData['token'])? '' : $bodyData['token'];
