@@ -13,6 +13,7 @@ $ac = empty($_GET['ac'])? '':addslashes($_GET['ac']);
  *   description="",
  * @SWG\Parameter(name="typeCode", type="string", required=true, in="query",example = "OCCUP|ADWALL|BOXSHOP|PACKAGE|HOUSE_RENT"),
  * @SWG\Parameter(name="id", type="integer", required=true, in="query",example = ""),
+ * @SWG\Parameter(name="postId", type="integer", required=false, in="query",example = "从系统广告用postId"),
  * @SWG\Response(
  *   response=200,
  *   description="ok response",
@@ -29,8 +30,9 @@ $ac = empty($_GET['ac'])? '':addslashes($_GET['ac']);
 //$bodyData = json_decode($bodyData,true);
 $type = empty($_GET['typeCode'])? "":$_GET['typeCode'];
 $id = empty($_GET['id'])? 0:$_GET['id'];
-if($id>0 && in_array($type,array('OCCUP','ADWALL','PACKAGE','BOXSHOP','HOUSE_RENT'))){
-    $info = getDetail($type,$id);
+$postId = empty($_GET['postId'])? 0:$_GET['postId'];
+if(($id>0 && in_array($type,array('OCCUP','ADWALL','PACKAGE','BOXSHOP','HOUSE_RENT'))) || $postId>0){
+    $info = getDetail($type,$id,$postId);
     header('HTTP/1.1 200 OK');
     echo json_encode ( array('status'=>200, 'data'=>$info) );exit();
 }else{
@@ -41,10 +43,18 @@ if($id>0 && in_array($type,array('OCCUP','ADWALL','PACKAGE','BOXSHOP','HOUSE_REN
 
 /****************************************************FUNC*************************************************************/
 
-function getDetail($type,$id){
+function getDetail($type,$id,$postId){
     global $conn;
     $info = [];
-    if($type == 'OCCUP'){
+    
+    if($postId > 0){
+      $sql ="SELECT insert_id,post_type from `snail_post_log` WHERE id = $postId limit 1;";
+      $a = $conn->query($sql)->fetch_assoc();
+      $type = $a['post_type'];
+      $id = $a['insert_id'];
+    }
+    
+    if($type == 'OCCUP' ||$type == 'FULLTIME' || $type == 'PARTTIME' || $type == 'FIND'){
         $sql ="SELECT * from `snail_post_occup` WHERE id = $id limit 1;";
     }elseif($type == 'ADWALL'){
         $sql ="SELECT * from `snail_post_adwall` WHERE id = $id limit 1;";

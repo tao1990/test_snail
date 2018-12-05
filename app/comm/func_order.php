@@ -27,7 +27,7 @@ function changeOrderStatus($orderSn,$arr){
             if($post_type == "BOXSHOP") $tableName = 'snail_post_boxshop';
             if($post_type == "HOUSE") $tableName = 'snail_post_house';
             if($post_type == "package") $tableName = 'snail_post_package';
-            snail_update($tableName,array('status'=>2),"id=$post_insert_id");
+            snail_update($tableName,array('status'=>1),"id=$post_insert_id");
         }
     }
     

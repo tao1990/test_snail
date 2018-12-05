@@ -38,42 +38,49 @@ if($ac == 'create'){
     $payMethod = empty($bodyData['payMethod'])? '' : $bodyData['payMethod'];
   
     if($uid > 0 && tokenVerify($token,$uid) && $postId > 0 && in_array($payMethod,array('WECHAT','ALIPAY'))){
-        $postInfo = getPostInfo($postId,$uid);
-        if($postInfo){
-            $postInfo['payMethod'] = $payMethod;
-            $bonusInfo = null;
-            if($bonusId>0){
-                $bonusInfo = checkBonus($bonusId,$uid,$postInfo['post_type']);
-                if(!$bonusInfo){
-                    header('HTTP/1.1 403 优惠券不存在');
-                    echo json_encode ( array('status'=>403, 'msg'=>'优惠券不存在') );exit();
+        
+        //postid if in order_info 
+        $order = $conn->query("SELECT * from `snail_order_info` WHERE `post_id` = ".$postId." limit 1; ")->fetch_assoc();
+
+        //no 
+        if(!$order){
+            $postInfo = getPostInfo($postId,$uid);
+            if($postInfo){
+                $postInfo['payMethod'] = $payMethod;
+                $bonusInfo = null;
+                if($bonusId>0){
+                    $bonusInfo = checkBonus($bonusId,$uid,$postInfo['post_type']);
+                    if(!$bonusInfo){
+                        header('HTTP/1.1 403 优惠券不存在');
+                        echo json_encode ( array('status'=>403, 'msg'=>'优惠券不存在') );exit();
+                    }
                 }
+                $order = createOrder($postInfo,$bonusInfo);
+               
+            }else{
+                header('HTTP/1.1 400 参数错误');
+                echo json_encode ( array('status'=>400, 'msg'=>'参数错误') );exit();
             }
-            $order = createOrder($postInfo,$bonusInfo);
+        }
+        if($order){
             
-            if($order){
-                
-                //扣优惠券
-                //if($bonusId>0) useBonus($bonusId,$order['order_sn']);
-                if($order['final_amount'] == 0){
-                    //免支付
-                    $arr['status'] = "PAIDED";
-                    changeOrderStatus($order['order_sn'],$arr);
-                    $needPay = false;
-                }else{
-                    //生成平台支付订单号
-                    $needPay = true;
-                    
-                }
-                
-                
-                //返回app
-                $resArr['order_sn'] = $order['order_sn'];
-                $resArr['needPay']  = $needPay;
-                
-                header('HTTP/1.1 200 ok');
-                echo json_encode ( array('status'=>200, 'data'=>json_encode($resArr)) );exit();
+            //扣优惠券
+            //if($bonusId>0) useBonus($bonusId,$order['order_sn']);
+            if($order['final_amount'] == 0){
+                //免支付
+                $arr['status'] = "PAIDED";
+                changeOrderStatus($order['order_sn'],$arr);
+                $needPay = false;
+            }else{
+                //生成平台支付订单号
+                $needPay = true;
             }
+            //返回app
+            $resArr['order_sn'] = $order['order_sn'];
+            $resArr['needPay']  = $needPay;
+            
+            header('HTTP/1.1 200 ok');
+            echo json_encode ( array('status'=>200, 'data'=>json_encode($resArr)) );exit();
         }
     }else{
         header('HTTP/1.1 400 参数错误');
@@ -101,11 +108,10 @@ if($ac == 'create'){
  * )
  */
 if($ac == "list"){
-    
     $uid    = empty($_GET['uid'])? 0 : intval($_GET['uid']);
     $token  = empty($_GET['token'])? 0 : $_GET['token'];
     $status = empty($_GET['status'])? '' : $_GET['status'];
-    
+
     if($uid > 0 && tokenVerify($token,$uid) && in_array($status,array('CREATED','PAIDED','CANNCEL',''))){
         $list = array();
         $list = getOrderList($uid,$status);
@@ -170,7 +176,8 @@ function getOrderList($uid,$status){
       $row2['status'] = $row['status'];  
       $row2['type'] = $row['post_type']; 
       $row2['create_time'] = $row['create_time'];  
-      $row2['create_time'] = $row['create_time'];  
+      $row2['create_time'] = $row['create_time']; 
+      $row2['postId'] = $row['post_id'];
       $list[] = $row2;
     }
     return $list;

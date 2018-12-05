@@ -120,7 +120,12 @@ function createOccup($arr){
   $conn->query($sql);
   $insert_id = $conn->insert_id;
   if($insert_id){
-        $sql="INSERT INTO `snail_post_log` (insert_id,post_type,amount,uid,dateline) VALUES (".$insert_id.",'OCCUP',$amount,".$arr['uid'].",$time)";
+        
+        $post_type = "OCCUP";
+        if($arr['type'] == "全职招聘") $post_type = "FULLTIME";
+        if($arr['type'] == "兼职招聘") $post_type = "PARTTIME";
+        if($arr['type'] == "我要求职") $post_type = "FIND";
+        $sql="INSERT INTO `snail_post_log` (insert_id,post_type,amount,uid,dateline) VALUES (".$insert_id.",'$post_type',$amount,".$arr['uid'].",$time)";
         $conn->query($sql);
         $post_id = $conn->insert_id;
   }
