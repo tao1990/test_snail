@@ -10,7 +10,7 @@ $ac = empty($_GET['ac'])? '':addslashes($_GET['ac']);
 
 /**
  * @SWG\Post(path="/app/order/order.php?ac=create", tags={"order"},
- *   summary="创建订单(调试中 未接通平台)",
+ *   summary="创建订单(调试中 未接通平台2)",
  *   description="",
  *   @SWG\Parameter(name="body", type="string", required=true, in="formData",
  *     description="body" ,example = "{	'uid':'',	'token':'','postId':'','bonusId':'','payMethod':'WECHAT|ALIPAY'}"
@@ -130,7 +130,7 @@ if($ac == "list"){
  *   description="",
  *   @SWG\Parameter(name="uid", type="integer", required=true, in="query",example = ""),
  *   @SWG\Parameter(name="token", type="string", required=true, in="query",example = ""),
- *   @SWG\Parameter(name="orderSn", type="string", required=trye, in="query",example = ""),
+ *   @SWG\Parameter(name="orderSn", type="string", required=true, in="query",example = ""),
  * @SWG\Response(
  *   response=200,
  *   description="ok response",
@@ -146,7 +146,6 @@ if($ac == "cancel"){
     $token  = empty($_GET['token'])? 0 : $_GET['token'];
     $orderSn = empty($_GET['orderSn'])? '' : $_GET['orderSn'];
     if($uid > 0 && tokenVerify($token,$uid) && $orderSn){
-        
         snail_update("snail_order_info",array('status'=>'CANCEL'),"order_sn=$orderSn AND uid=$uid");
         header('HTTP/1.1 200 ok');
         echo json_encode ( array('status'=>200, 'msg'=>'取消成功') );exit();
@@ -154,7 +153,6 @@ if($ac == "cancel"){
         header('HTTP/1.1 400 参数错误');
         echo json_encode ( array('status'=>400, 'msg'=>'参数错误') );exit();
     }
-    
 }
 
 

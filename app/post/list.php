@@ -6,13 +6,13 @@ require_once("../comm/comm.php");
 $ac = empty($_GET['ac'])? '':addslashes($_GET['ac']);
 //$m = empty($_GET['m'])? '':addslashes($_GET['m']);
 
-
 /**
- * @SWG\Get(path="/app/post/detail.php", tags={"post"},
- *   summary="获取审核状态的列表(ok)",
+ * @SWG\Get(path="/app/post/list.php", tags={"post"},
+ *   summary="我的发布(ok)",
  *   description="",
  * @SWG\Parameter(name="uid", type="string", required=true, in="query",example = ""),
  * @SWG\Parameter(name="token", type="string", required=true, in="query",example = ""),
+ * @SWG\Parameter(name="status", type="string", required=true, in="query",example = "1:已审核,2:待审核,3:审核未通过"),
  * @SWG\Response(
  *   response=200,
  *   description="ok response",
@@ -23,10 +23,10 @@ $ac = empty($_GET['ac'])? '':addslashes($_GET['ac']);
  *   )
  * )
  */
-$uid    = empty($_GET['uid'])? 0 : intval($_GET['uid']);
+    $uid    = empty($_GET['uid'])? 0 : intval($_GET['uid']);
     $token  = empty($_GET['token'])? 0 : $_GET['token'];
     $status = empty($_GET['status'])? 0 : intval($_GET['status']);
-    if($uid > 0 && tokenVerify($token,$uid)){
+    if($uid > 0 && tokenVerify($token,$uid)){//
         $list = array();
         $list = getReleaseList($uid,$status);
         header('HTTP/1.1 200 ok');
@@ -56,53 +56,71 @@ function getReleaseList($uid,$status){
 
 function getPostInfo($id,$type,$status){
     global $conn;
-    if($type == 'OCCUP'){
+    $resList = null;
+    if($type == 'OCCUP' || $type == 'PARTTIME' || $type == 'FULLTIME' || $type == 'FIND'){
         $sql ="SELECT * from `snail_post_occup` WHERE id = $id AND status = $status limit 1;";
         $list = $conn->query($sql)->fetch_assoc();
-        $resList['id']       = $list['id'];
-        $resList['typeCode'] = getOccupCode($row['type']);
-        $resList['typeName'] = $list['type'];
-        $resList['title']    = $list['title'];
-        $resList['tag1']    = getOccupTag($row['type']);
-        $resList['tag2']    = $list['work_type'];
-        $resList['tag3']    = $list['industry_type'];
-        $resList['salary']    = $list['salary'];
-        $resList['salaryType']    = $list['salary_type'];
+        if($list){
+          $resList['id']       = $list['id'];
+          $resList['type']     = "OCCUP";  
+          $resList['typename'] = $list['type'];
+          $resList['title']    = $list['title'];
+          $resList['money']    = $list['salary'];
+          $resList['money_type']    = $list['salary_type'];
+          $resList['tag1']     = $list['type'];
+          $resList['tag2']     = $list['work_type'];
+          $resList['tag3']     = $list['industry_type'];
+          $resList['start_date']     = $list['start_date'];
+        }
     }elseif($type == 'ADWALL'){
         $sql ="SELECT * from `snail_post_adwall` WHERE id = $id AND status = $status limit 1;";
         $list = $conn->query($sql)->fetch_assoc();
-        $resList['id'] = $list['id'];
-        $resList['typeCode'] = 'ADWALL';
-        $resList['typeName'] = $list['type'];
-        $resList['title'] = $list['title'];
+        if($list){
+          $resList['id']       = $list['id'];
+          $resList['type']     = "ADWALL";  
+          $resList['typename'] = $list['type'];
+          $resList['title']    = $list['title'];
+          $resList['money']    = 0;
+          $resList['tag1']     = $list['type'];
+          $resList['start_date']     = $list['start_date'];
+        }
     }elseif($type == 'PACKAGE'){
         $sql ="SELECT * from `snail_post_package` WHERE id = $id AND status = $status limit 1;";
         $list = $conn->query($sql)->fetch_assoc();
-        $resList['id']       = $list['id'];
-        $resList['typeCode']     = "PACKAGE";  
-        $resList['typeName'] = $list['type'];
-        $resList['title']    = $list['company'];
-        $resList['logo']     = $list['logo'];
+        if($list){
+          $resList['id']       = $list['id'];
+          $resList['type']     = "PACKAGE";  
+          $resList['typename'] = $list['type'];
+          $resList['title']    = $list['company'];
+          //$resList['money']    = '';
+          $resList['tag1']     = $list['company_city'];
+          $resList['start_date']     = $list['start_date'];
+        }
     }elseif($type == 'BOXSHOP'){
         $sql ="SELECT * from `snail_post_boxshop` WHERE id = $id AND status = $status limit 1;";
         $list = $conn->query($sql)->fetch_assoc();
-        $resList['id']       = $list['id'];
-        $resList['typeCode']     = "BOXSHOP";  
-        $resList['typeName'] = $list['type'];
-        $resList['title']    = $list['title'];
-        $resList['region']    = $list['region'];
-        $resList['money']    = $list['money'];
-        $resList['marketing']    = $list['marketing'];
+        if($list){
+          $resList['id']       = $list['id'];
+          $resList['type']     = "BOXSHOP";  
+          $resList['typename'] = $list['type'];
+          $resList['title']    = $list['title'];
+          $resList['money']    = $list['money'];
+          $resList['tag1']     = $list['type'];
+          $resList['tag2']     = "面积".$list['area'];
+          $resList['start_date']     = $list['start_date'];
+        }
     }elseif($type == 'HOUSE_RENT'){
         $sql ="SELECT * from `snail_post_house` WHERE id = $id AND status = $status limit 1;";
         $list = $conn->query($sql)->fetch_assoc();
-        $resList['id']       = $list['id'];
-        $resList['typeCode']     = "HOUSE_RENT";
-        $resList['typeName'] = $list['type'];
-        $resList['title']    = $list['title'];
-        $resList['space']    = getAreaInfo($row['space']);
-        $resList['area']    = $list['area'];
-        $resList['money']    = $list['rent'];
+        if($list){
+          $resList['type']     = "HOUSE_RENT";  
+          $resList['typename'] = $list['type'];
+          $resList['title']    = $list['title'];
+          $resList['money']    = $list['rent'];
+          $resList['tag1']     = $list['type'];
+          $resList['tag2']     = "面积".$list['area'];
+          $resList['start_date']     = $list['start_date'];
+        }
     }
     return $resList;
     

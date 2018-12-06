@@ -35,13 +35,6 @@ if($keywords){
 
 
 
-
-
-
-
-
-
-
 /****************************************************FUNC*************************************************************/
 
 function getSearchList($keywords){
@@ -70,7 +63,7 @@ function getAdWall($keywords){
       $row2['type']     = "ADWALL";  
       $row2['typename'] = $row['type'];
       $row2['title']    = $row['title'];
-      $row2['money']    = '';
+      $row2['money']    = 0;
       $row2['tag1']     = $row['type'];
       $row2['start_date']     = $row['start_date'];
       $list[] = $row2;
@@ -122,7 +115,7 @@ function getOccup($keywords){
     global $conn;
     $time = time();
     $list = [];
-    $res = $conn->query("SELECT id,type,title,work_type,industry_type,salary,start_date,end_date FROM `snail_post_occup` WHERE status = 1 AND end_date>$time AND start_date<$time AND title LIKE '%$keywords%';");
+    $res = $conn->query("SELECT id,type,title,work_type,industry_type,salary,salary_type,start_date,end_date FROM `snail_post_occup` WHERE status = 1 AND end_date>$time AND start_date<$time AND title LIKE '%$keywords%';");
     while ($row = mysqli_fetch_assoc($res))
     {
       $row2['id']       = $row['id'];
@@ -130,6 +123,7 @@ function getOccup($keywords){
       $row2['typename'] = $row['type'];
       $row2['title']    = $row['title'];
       $row2['money']    = $row['salary'];
+      $row2['money_type']    = $row['salary_type'];
       $row2['tag1']     = $row['type'];
       $row2['tag2']     = $row['work_type'];
       $row2['tag3']     = $row['industry_type'];
@@ -150,7 +144,7 @@ function getPackage($keywords){
       $row2['type']     = "PACKAGE";  
       $row2['typename'] = $row['type'];
       $row2['title']    = $row['company'];
-      $row2['money']    = '';
+      //$row2['money']    = '';
       $row2['tag1']     = $row['company_city'];
       $row2['start_date']     = $row['start_date'];
       $list[] = $row2;

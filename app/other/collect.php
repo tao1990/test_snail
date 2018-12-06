@@ -44,6 +44,7 @@ if($ac == 'list'){
  *   description="",
  * @SWG\Parameter(name="uid", type="integer", required=true, in="query"),
  * @SWG\Parameter(name="type", type="string", required=true, in="query"),
+ * @SWG\Parameter(name="id", type="string", required=true, in="query"),
  * @SWG\Response(
  *   response=200,
  *   description="ok response",

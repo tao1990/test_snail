@@ -14,6 +14,7 @@ function tokenCreate($uid){
  */
 function tokenVerify($token,$uid=0){
   //$token = "Yltqmm2VY2lsZ56a1";
+  //Ym1clm6YZ2RxZJeXZg==
   $decryToken = snailDecrypt($token,ENCRY_KEY);
   $check = explode('#',$decryToken);
 

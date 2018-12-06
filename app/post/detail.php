@@ -14,6 +14,7 @@ $ac = empty($_GET['ac'])? '':addslashes($_GET['ac']);
  * @SWG\Parameter(name="typeCode", type="string", required=true, in="query",example = "OCCUP|ADWALL|BOXSHOP|PACKAGE|HOUSE_RENT"),
  * @SWG\Parameter(name="id", type="integer", required=true, in="query",example = ""),
  * @SWG\Parameter(name="postId", type="integer", required=false, in="query",example = "从系统广告用postId"),
+ * @SWG\Parameter(name="uid", type="integer", required=false, in="query",example = "传入uid时候返回collect"),
  * @SWG\Response(
  *   response=200,
  *   description="ok response",
@@ -31,8 +32,9 @@ $ac = empty($_GET['ac'])? '':addslashes($_GET['ac']);
 $type = empty($_GET['typeCode'])? "":$_GET['typeCode'];
 $id = empty($_GET['id'])? 0:$_GET['id'];
 $postId = empty($_GET['postId'])? 0:$_GET['postId'];
+$uid = empty($_GET['uid'])? 0:$_GET['uid'];
 if(($id>0 && in_array($type,array('OCCUP','ADWALL','PACKAGE','BOXSHOP','HOUSE_RENT'))) || $postId>0){
-    $info = getDetail($type,$id,$postId);
+    $info = getDetail($type,$id,$postId,$uid);
     header('HTTP/1.1 200 OK');
     echo json_encode ( array('status'=>200, 'data'=>$info) );exit();
 }else{
@@ -43,7 +45,7 @@ if(($id>0 && in_array($type,array('OCCUP','ADWALL','PACKAGE','BOXSHOP','HOUSE_RE
 
 /****************************************************FUNC*************************************************************/
 
-function getDetail($type,$id,$postId){
+function getDetail($type,$id,$postId,$uid){
     global $conn;
     $info = [];
     
@@ -65,14 +67,29 @@ function getDetail($type,$id,$postId){
     }elseif($type == 'HOUSE_RENT'){
         $sql ="SELECT * from `snail_post_house` WHERE id = $id limit 1;";
     }
-    $result=$conn->query($sql);
-    while ($row = mysqli_fetch_assoc($result))
-    {
-        if($row['tags'])$row['tags'] = json_decode($row['tags']); 
-        if($row['imgs'])$row['imgs'] = json_decode($row['imgs']); 
-        $info[] = $row;
+    $info=$conn->query($sql)->fetch_assoc();
+    if($info['tags'])$info['tags'] = json_decode($info['tags']); 
+    if($info['imgs'])$info['imgs'] = json_decode($info['imgs']); 
+    
+    if($uid>0){
+        $info = addCollectStatus($info,$type,$uid);
     }
-    return $info[0];
+    return $info;
 }
 
-
+function addCollectStatus($info,$type,$uid){
+    global $conn;
+    $sql = "SELECT * FROM `snail_collect` WHERE uid = $uid AND type = '$type';";
+    $result=$conn->query($sql);
+    $collectArr = array();
+    while ($row = mysqli_fetch_assoc($result))
+    {
+      array_push($collectArr,$row['insert_id']);
+    }
+    if(in_array($info['id'],$collectArr)){
+        $info['collected'] = true;
+    }else{
+        $info['collected'] = false;
+    }
+    return $info;
+}

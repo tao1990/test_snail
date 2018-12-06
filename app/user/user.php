@@ -215,6 +215,54 @@ if($ac == 'changePassword'){
 }
 
 
+/**
+ * @SWG\Post(path="/app/user/user.php?ac=updateOther", tags={"user"},
+ *   summary="修改用户昵称性别(OK)",
+ *   description="",
+ *   @SWG\Parameter(name="body", type="string", required=true, in="formData",
+ *     description="body" ,example = "{	'uid':'','token':'','username':'','sex':'男','wechat':'','bind_phone':''}"
+ *   ),
+ * @SWG\Response(
+ *   response=200,
+ *   description="ok response",
+ *   ),
+ * @SWG\Response(
+ *   response="default",
+ *   description="unexpected error",
+ *   )
+ * )
+ */
+if($ac == 'updateOther'){
+    $bodyData = @file_get_contents('php://input');
+    $bodyData = json_decode($bodyData,true);
+    @$uid = $bodyData['uid'];
+    @$token = $bodyData['token'];
+    @$username = $bodyData['username'];
+    @$sex = $bodyData['sex'];
+    @$wechat = $bodyData['wechat'];
+    @$bind_phone = $bodyData['bind_phone'];
+    
+    if(tokenVerify($token,$uid) && $uid && $token){
+        
+        $arr = array();
+        if($username) $arr = array_merge($arr,array('username'=>$username));
+        if($sex) $arr = array_merge($arr,array('sex'=>$sex));
+        if($wechat) $arr = array_merge($arr,array('wechat'=>$wechat));
+        if($bind_phone) $arr = array_merge($arr,array('bind_phone'=>$bind_phone));
+        $update = snail_update("snail_user",$arr,"uid=$uid");
+        if($update){
+            header('HTTP/1.1 200 OK');
+            echo json_encode ( array('status'=>200, 'msg'=>'修改成功') );exit();
+        }else{
+            header('HTTP/1.1 500 params error');
+            echo json_encode ( array('status'=>500, 'msg'=>'error') );exit();
+        }
+    }else{
+        header('HTTP/1.1 400 params error');
+        echo json_encode ( array('status'=>400, 'msg'=>'params error') );exit();
+    }
+}
+
 
 
 /****************************************************FUNC*************************************************************/
