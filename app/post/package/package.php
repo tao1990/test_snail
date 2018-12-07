@@ -60,13 +60,8 @@ if($ac == 'list'){
  * )
  */
 if($ac == 'create'){
-  //$token = empty($_GET['token'])? '':$_GET['token'];
   $bodyData = @file_get_contents('php://input');
   snail_log($bodyData);
-  //$logFile = fopen("./log.log", "w");
-//  $txt = "$bodyData -- ".date('Y-m-d H:i:s',time())."\n";
-//  fwrite($logFile, $txt);
-//  fclose($logFile); 
   $bodyData = json_decode($bodyData,true);
   $token = empty($bodyData['token'])? '':$bodyData['token'];
   if(tokenVerify($token)){

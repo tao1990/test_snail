@@ -1,0 +1,47 @@
+{
+	"token": "Ym1clm6YZWpsa5uVZA==",
+	"uid": "15",
+	"type": "兼职招聘",
+	"title": "我公司意向招一名兼职翻译",
+	"work_type": "翻译",
+	"industry_type": "教育",
+	"salary": "90000",
+	"salary_type": "RUB",
+	"sex": "男",
+	"age": "30岁以下",
+	"content": "这里填写详细介绍",
+	"contacts_man": "IceMan",
+	"contacts_mobile": "79011111111"
+}
+
+{
+	"token": "Ym1clm6YZWpsa5uVZA==",
+	"uid": "15",
+	"type": "全职招聘",
+	"title": "本公司想招聘一名网管",
+	"work_type": "网管",
+	"industry_type": "电子商务",
+	"salary": "90000",
+	"salary_type": "RUB",
+	"sex": "男",
+	"age": "30岁以下",
+	"content": "这里填写详细介绍",
+	"contacts_man": "IceMan",
+	"contacts_mobile": "79011111111"
+}
+
+{
+	"token": "Ym1clm6YZWpsa5uVZA==",
+	"uid": "15",
+	"type": "我要求职02",
+	"title": "我想找一份服务员的工作02",
+	"work_type": "服务员",
+	"industry_type": "餐饮",
+	"salary": "40000",
+	"salary_type": "RUB",
+	"sex": "男",
+	"age": "23",
+	"content": "这里填写详细介绍02",
+	"contacts_man": "IceMan",
+	"contacts_mobile": "79011111111"
+}

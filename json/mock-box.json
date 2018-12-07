@@ -1,0 +1,50 @@
+{
+	"token": "Ym1clm6YZWpsa5uVZA==",
+	"uid": "15",
+	"type": "箱铺出租",
+	"title": "流布利诺地区箱铺出租",
+	"region": "流布利诺",
+	"marketing": "服装区",
+	"tags": [{
+		"电梯": true
+	}, {
+		"货梯": true
+	}, {
+		"无线网": false
+	}, {
+		"空调": true
+	}, {
+		"电暖气": false
+	}],
+	"money": "70000",
+	"area": "50",
+	"imgs": ["/upload/img/20181122/ca86592490048183f5434cf85de75149.png", "/upload/img/20181122/257d802afa16bf0163cf3c6d3ffac96d.png"],
+	"contacts_man": "Ever",
+	"contacts_mobile": "11010101010"
+}
+
+
+{
+	"token": "Ym1clm6YZWpsa5uVZA==",
+	"uid": "15",
+	"type": "箱铺出售",
+	"title": "19公里地区箱铺售啦",
+	"region": "19公里",
+	"marketing": "鞋子区",
+	"tags": [{
+		"电梯": true
+	}, {
+		"货梯": true
+	}, {
+		"无线网": true
+	}, {
+		"空调": true
+	}, {
+		"电暖气": false
+	}],
+	"money": "700000",
+	"area": "46",
+	"imgs": ["/upload/img/20181122/ca86592490048183f5434cf85de75149.png"],
+	"contacts_man": "Ever",
+	"contacts_mobile": "11010101010"
+}

@@ -82,8 +82,7 @@ if($ac == 'create'){
     $arr['content'] = empty($bodyData['content'])? '':$bodyData['content'];
     $arr['contacts_man'] = empty($bodyData['contacts_man'])? '':$bodyData['contacts_man'];
     $arr['contacts_mobile'] = empty($bodyData['contacts_mobile'])? '':$bodyData['contacts_mobile'];
-    $amount = $arr['type']=="FIND"? 100:200;
-    
+    $amount = $arr['type']=="我要求职"? 100:200;
     if( $arr['uid'] == 0 || !$arr['type'] || !$arr['title'] || !$arr['contacts_man'] || !$arr['contacts_mobile']){
         header('HTTP/1.1 400 ERROR');
         echo json_encode ( array('status'=>400, 'msg'=>'params error') );exit();
@@ -111,7 +110,7 @@ if($ac == 'create'){
 /*******************************************************************func***************************************************************************/
 
 
-function createOccup($arr){
+function createOccup($arr,$amount){
   global $conn;
   $time = time();
   $post_id = 0;

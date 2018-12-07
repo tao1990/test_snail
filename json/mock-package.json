@@ -1,0 +1,38 @@
+{
+	"token": "Ym1clm6YZWpsa5uVZA==",
+	"uid": "15",
+	"type": "空运",
+	"company": "空运公司001",
+	"logo": "/upload/img/20181207/cf9996d3720c1135fe1bc85cf1bac810.png",
+	"company_city": "俄罗斯某市",
+	"company_info": "空运公司001空运公司001空运公司001空运公司001空运公司001空运公司001？",
+	"company_business": "这里是填写业务",
+	"contacts_man": "IceMan",
+	"contacts_mobile": "79011111111"
+}
+
+{
+	"token": "Ym1clm6YZWpsa5uVZA==",
+	"uid": "15",
+	"type": "陆运",
+	"company": "陆运公司001",
+	"logo": "/upload/img/20181207/cf9996d3720c1135fe1bc85cf1bac810.png",
+	"company_city": "俄罗斯某市",
+	"company_info": "陆运公司001陆运公司001陆运公司001陆运公司001陆运公司001陆运公司001",
+	"company_business": "这里是填写业务",
+	"contacts_man": "IceMan",
+	"contacts_mobile": "79011111111"
+}
+
+{
+	"token": "Ym1clm6YZWpsa5uVZA==",
+	"uid": "15",
+	"type": "海运",
+	"company": "海运公司001",
+	"logo": "/upload/img/20181207/cf9996d3720c1135fe1bc85cf1bac810.png",
+	"company_city": "俄罗斯某市",
+	"company_info": "海运公司001海运公司001海运公司001海运公司001海运公司001海运公司001",
+	"company_business": "这里是填写业务",
+	"contacts_man": "IceMan",
+	"contacts_mobile": "79011111111"
+}

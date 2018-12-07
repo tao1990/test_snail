@@ -163,6 +163,7 @@ if($ac == "cancel"){
 
 function getOrderList($uid,$status){
     global $conn;
+    $list = [];
     $sqlStr = $status? " AND A.status = '$status'":"";
     $sql="SELECT * from `snail_order_info` A LEFT JOIN `snail_post_log` B ON A.post_id = B.id WHERE A.uid = $uid $sqlStr;";
     $result=$conn->query($sql);
@@ -203,6 +204,7 @@ function createOrder($postInfo,$bonusInfo){
         $arr['bonus_id']      = $bonusInfo['bonus_id'];
         $arr['bonus_amount']  = $bonusInfo['type_money'];
         $arr['final_amount']  = $postInfo['amount']-$bonusInfo['type_money'];
+        if($arr['final_amount'] <0) $arr['final_amount'] = 0;
     }
     $order_id = snail_insert('snail_order_info',$arr);
     return $conn->query("SELECT * from `snail_order_info` WHERE `order_id` = $order_id LIMIT 1; ")->fetch_assoc();    
@@ -223,8 +225,10 @@ function checkBonus($bonusId,$uid,$post_type){
     global $conn;
     $res = false;
     $bonus = $conn->query("SELECT * from `snail_user_bonus` WHERE `bonus_id` = $bonusId AND `uid`=$uid AND used_time = 0; ")->fetch_assoc();
+    
     if($bonus){
         $info = $conn->query("SELECT * from `snail_bonus_type` WHERE `type_id` = ".$bonus['bonus_type_id']."; ")->fetch_assoc();
+        
         if($info){
             $typeArr = json_decode($info['post_type_json']);
             if(in_array('ALL',$typeArr) || in_array($post_type,$typeArr)){

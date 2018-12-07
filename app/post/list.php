@@ -80,7 +80,7 @@ function getPostInfo($id,$type,$status){
           $resList['type']     = "ADWALL";  
           $resList['typename'] = $list['type'];
           $resList['title']    = $list['title'];
-          $resList['money']    = 0;
+          $resList['money_type']    = "RUB";
           $resList['tag1']     = $list['type'];
           $resList['start_date']     = $list['start_date'];
         }
@@ -92,7 +92,6 @@ function getPostInfo($id,$type,$status){
           $resList['type']     = "PACKAGE";  
           $resList['typename'] = $list['type'];
           $resList['title']    = $list['company'];
-          //$resList['money']    = '';
           $resList['tag1']     = $list['company_city'];
           $resList['start_date']     = $list['start_date'];
         }
@@ -105,6 +104,7 @@ function getPostInfo($id,$type,$status){
           $resList['typename'] = $list['type'];
           $resList['title']    = $list['title'];
           $resList['money']    = $list['money'];
+          $resList['money_type']    = "RUB";
           $resList['tag1']     = $list['type'];
           $resList['tag2']     = "面积".$list['area'];
           $resList['start_date']     = $list['start_date'];
@@ -117,6 +117,7 @@ function getPostInfo($id,$type,$status){
           $resList['typename'] = $list['type'];
           $resList['title']    = $list['title'];
           $resList['money']    = $list['rent'];
+          $resList['money_type']    = "RUB";
           $resList['tag1']     = $list['type'];
           $resList['tag2']     = "面积".$list['area'];
           $resList['start_date']     = $list['start_date'];

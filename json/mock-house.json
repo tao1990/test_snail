@@ -1,0 +1,152 @@
+{
+	"token": "Ym1clm6YZWpsa5uVZA==",
+	"uid": "15",
+	"type": "宾馆",
+	"title": "流布利诺地区出租宾馆啦111~~~",
+	"tags": [{
+		"电梯": true
+	}, {
+		"厨房": true
+	}, {
+		"无线网": false
+	}, {
+		"洗衣机": true
+	}, {
+		"冰箱": false
+	}, {
+		"空调": false
+	}, {
+		"热水": false
+	}, {
+		"电视": false
+	}, {
+		"双人床": false
+	}, {
+		"净水器": false
+	}],
+	"traffic": "1号线",
+	"space": "3|2|1",
+	"area" : "38",
+	"rent" : "50000",
+	"middle_man" : 1,
+	"deposit_cash" : 1,
+	"house_desc" : "流布利诺地区出租宾馆啦111流布利诺地区出租宾馆啦111流布利诺地区出租宾馆啦111流布利诺地区出租宾馆啦111",
+	"imgs": ["/upload/img/20181122/ca86592490048183f5434cf85de75149.png", "/upload/img/20181122/257d802afa16bf0163cf3c6d3ffac96d.png"],
+	"contacts_man": "Ever",
+	"contacts_mobile": "11010101010"
+}
+
+
+{
+	"token": "Ym1clm6YZWpsa5uVZA==",
+	"uid": "15",
+	"type": "整套",
+	"title": "流布利诺地区出租宾馆啦111~~~",
+	"tags": [{
+		"电梯": true
+	}, {
+		"厨房": false
+	}, {
+		"无线网": false
+	}, {
+		"洗衣机": true
+	}, {
+		"冰箱": false
+	}, {
+		"空调": false
+	}, {
+		"热水": false
+	}, {
+		"电视": false
+	}, {
+		"双人床": false
+	}, {
+		"净水器": false
+	}],
+	"traffic": "2号线",
+	"space": "1|2|1",
+	"area" : "60",
+	"rent" : "50000",
+	"middle_man" : 1,
+	"deposit_cash" : 1,
+	"house_desc" : "流布利诺地区出租宾馆啦111流布利诺地区出租宾馆啦111流布利诺地区出租宾馆啦111流布利诺地区出租宾馆啦111",
+	"imgs": ["/upload/img/20181122/ca86592490048183f5434cf85de75149.png", "/upload/img/20181122/257d802afa16bf0163cf3c6d3ffac96d.png"],
+	"contacts_man": "Ever",
+	"contacts_mobile": "11010101010"
+}
+
+{
+	"token": "Ym1clm6YZWpsa5uVZA==",
+	"uid": "15",
+	"type": "单整间",
+	"title": "单整间单整间单整间单整间单整间~~~",
+	"tags": [{
+		"电梯": true
+	}, {
+		"厨房": false
+	}, {
+		"无线网": false
+	}, {
+		"洗衣机": true
+	}, {
+		"冰箱": false
+	}, {
+		"空调": false
+	}, {
+		"热水": false
+	}, {
+		"电视": false
+	}, {
+		"双人床": false
+	}, {
+		"净水器": false
+	}],
+	"traffic": "2号线",
+	"space": "1|2|1",
+	"area" : "60",
+	"rent" : "50000",
+	"middle_man" : 1,
+	"deposit_cash" : 1,
+	"house_desc" : "流布利诺单整间单整间单整间单整间单整间单整间单整间单整间单整间单整间单整间单整间单整间单整间单整间",
+	"imgs": ["/upload/img/20181122/ca86592490048183f5434cf85de75149.png", "/upload/img/20181122/257d802afa16bf0163cf3c6d3ffac96d.png"],
+	"contacts_man": "Ever",
+	"contacts_mobile": "11010101010"
+}
+
+{
+	"token": "Ym1clm6YZWpsa5uVZA==",
+	"uid": "15",
+	"type": "拼床位",
+	"title": "拼床位拼床位拼床位拼床位拼床位拼床位~~~",
+	"tags": [{
+		"电梯": true
+	}, {
+		"厨房": false
+	}, {
+		"无线网": false
+	}, {
+		"洗衣机": true
+	}, {
+		"冰箱": false
+	}, {
+		"空调": false
+	}, {
+		"热水": false
+	}, {
+		"电视": false
+	}, {
+		"双人床": false
+	}, {
+		"净水器": false
+	}],
+	"traffic": "2号线",
+	"space": "1|2|1",
+	"area" : "60",
+	"rent" : "50000",
+	"middle_man" : 1,
+	"deposit_cash" : 1,
+	"house_desc" : "拼床位拼床位拼床位拼床位拼床位拼床位拼床位拼床位拼床位拼床位拼床位",
+	"imgs": ["/upload/img/20181122/ca86592490048183f5434cf85de75149.png", "/upload/img/20181122/257d802afa16bf0163cf3c6d3ffac96d.png"],
+	"contacts_man": "Ever",
+	"contacts_mobile": "11010101010"
+}
