@@ -3,9 +3,7 @@
     header("Content-type: application/json; charset=utf-8");
     require_once("../comm/comm.php");
     
-    $ac = empty($_GET['ac'])? '':addslashes($_GET['ac']);
-    
-    if($ac == 'create'){
+    function snail_alipay_create_order($orderSn,$amount,$subject,$body=""){
         require_once "../../api/alipay/aop/AopClient.php";
         require_once "../../api/alipay/aop/request/AlipayTradeAppPayRequest.php";
         $aop = new AopClient;
@@ -19,22 +17,39 @@
         //实例化具体API对应的request类,类名称和接口名称对应,当前调用接口名称：alipay.trade.app.pay
         $request = new AlipayTradeAppPayRequest();
         //SDK已经封装掉了公共参数，这里只需要传入业务参数
-        //$total_amount = number_format(0.01,2,".","");
-        $bizcontent = "{\"body\":\"这是一笔广告费\"," 
-                        . "\"subject\": \"蜗牛时代广告墙广告\","
-                        . "\"out_trade_no\": \"2018111314428888\","
+        $total_amount = number_format($amount,2,".","");
+        $bizcontent = "{\"body\":\"$body\"," 
+                        . "\"subject\": \"$subject\","
+                        . "\"out_trade_no\": \"$orderSn\","
                         . "\"timeout_express\": \"30m\"," 
-                        . "\"total_amount\": \"0.01\","
+                        . "\"total_amount\": \"$total_amount\","
                         . "\"product_code\":\"QUICK_MSECURITY_PAY\""
                         . "}";
-        $request->setNotifyUrl("http://58.247.87.162:4003/app/pay/zfb_cb.php");
+        $request->setNotifyUrl(NOTIFY_ZFB);
         $request->setBizContent($bizcontent);
         //这里和普通的接口调用不同，使用的是sdkExecute
         $response = $aop->sdkExecute($request);
         //htmlspecialchars是为了输出到页面时防止被浏览器将关键参数html转义，实际打印到日志以及http传输不会有这个问题
-        echo htmlspecialchars($response);//就是orderString 可以直接给客户端请求，无需再做处理。
+        return htmlspecialchars($response);//就是orderString 可以直接给客户端请求，无需再做处理。
     }
     
+    
+    function snail_wxpay_create_order($orderSn,$amount){
+        require_once "../../api/wxpay/wxpay.php";
+        $wxpay = new Wxpay;  //实例化微信支付类
+        $wxpay->config = array(
+            'appid' => "", /*微信开放平台上的应用id*/
+            'mch_id' => "", /*微信申请成功之后邮件中的商户id*/
+            'api_key' => "", /*在微信商户平台上自己设定的api密钥 32位*/
+        );
+        $wxpay->notify_url = NOTIFY_WX;
+        $res = $wxpay->Wxpay($amount,$orderSn); //调用weixinpay方法
+        return $res;
+    }
+    /*
+    
+    $ac = empty($_GET['ac'])? '':addslashes($_GET['ac']);
+
     if($ac == 'query'){
         require_once "../../api/alipay/aop/AopClient.php";
         require_once "../../api/alipay/aop/request/AlipayTradeQueryRequest.php";
@@ -65,10 +80,9 @@
         } else {
         echo "失败";
         }
-        
   
     }
-    
+        */
     
     
     

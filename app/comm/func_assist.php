@@ -95,8 +95,11 @@ function snailDecrypt($data, $key)
     return $str;
 }
 
-function snail_log($bodyData){
-    $logFile = fopen($_SERVER['DOCUMENT_ROOT']."/log.log", "a+");
+function snail_log($bodyData,$name="log"){
+    if($name){
+        $logName = "/$name.log";
+    }
+    $logFile = fopen($_SERVER['DOCUMENT_ROOT'].$logName, "a+");
     $txt = date('Y-m-d H:i:s',time())."--- $bodyData\r\n";
     fwrite($logFile, $txt);
     fclose($logFile); 

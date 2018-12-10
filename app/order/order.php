@@ -8,6 +8,15 @@ $ac = empty($_GET['ac'])? '':addslashes($_GET['ac']);
 //$m = empty($_GET['m'])? '':addslashes($_GET['m']);
 
 
+//require_once("../pay/pay.php");
+//$orderSn = '2018120800998811';
+//$amount = 100;
+//$subject = "蜗牛时代广告费";
+//$body = "一笔广告费";
+//$mess = snail_alipay_create_order($orderSn,$amount,$subject,$body);
+//
+//print_r($mess);
+//die;
 /**
  * @SWG\Post(path="/app/order/order.php?ac=create", tags={"order"},
  *   summary="创建订单(调试中 未接通平台2)",
@@ -41,7 +50,6 @@ if($ac == 'create'){
         
         //postid if in order_info 
         $order = $conn->query("SELECT * from `snail_order_info` WHERE `post_id` = ".$postId." limit 1; ")->fetch_assoc();
-
         //no 
         if(!$order){
             $postInfo = getPostInfo($postId,$uid);
@@ -68,12 +76,27 @@ if($ac == 'create'){
             //if($bonusId>0) useBonus($bonusId,$order['order_sn']);
             if($order['final_amount'] == 0){
                 //免支付
-                $arr['status'] = "PAIDED";
-                changeOrderStatus($order['order_sn'],$arr);
+                $order['status'] = "PAIDED";
+                changeOrderStatus($order['order_sn'],"PAIDED");
                 $needPay = false;
             }else{
                 //生成平台支付订单号
                 $needPay = true;
+                if($order['pay_method'] == "ALIPAY"){
+                    require_once("../pay/pay.php");
+                    $orderSn = $order['order_sn'];
+                    $amount = $order['final_amount'];
+                    $subject = "蜗牛时代广告费".$order['post_id'];
+                    $body = "一笔广告费";
+                    $payCode = snail_alipay_create_order($orderSn,$amount,$subject,$body);
+                    $resArr['payCode'] = $payCode;
+                }
+                if($order['pay_method'] == "WECHAT"){
+                    $payCode = snail_wxpay_create_order($orderSn,$amount);
+                    $resArr['payCode'] = $payCode;
+                }
+                
+                
             }
             //返回app
             $resArr['order_sn'] = $order['order_sn'];
@@ -149,6 +172,37 @@ if($ac == "cancel"){
         snail_update("snail_order_info",array('status'=>'CANCEL'),"order_sn=$orderSn AND uid=$uid");
         header('HTTP/1.1 200 ok');
         echo json_encode ( array('status'=>200, 'msg'=>'取消成功') );exit();
+    }else{
+        header('HTTP/1.1 400 参数错误');
+        echo json_encode ( array('status'=>400, 'msg'=>'参数错误') );exit();
+    }
+}
+
+/**
+ * @SWG\Get(path="/app/order/order.php?ac=query", tags={"order"},
+ *   summary="订单状态查询",
+ *   description="",
+ *   @SWG\Parameter(name="uid", type="integer", required=true, in="query",example = ""),
+ *   @SWG\Parameter(name="token", type="string", required=true, in="query",example = ""),
+ *   @SWG\Parameter(name="orderSn", type="string", required=true, in="query",example = ""),
+ * @SWG\Response(
+ *   response=200,
+ *   description="ok response",
+ *   ),
+ * @SWG\Response(
+ *   response="default",
+ *   description="unexpected error",
+ *   )
+ * )
+ */
+if($ac == "query"){
+    $uid    = empty($_GET['uid'])? 0 : intval($_GET['uid']);
+    $token  = empty($_GET['token'])? 0 : $_GET['token'];
+    $orderSn = empty($_GET['orderSn'])? '' : $_GET['orderSn'];
+    if($uid > 0 && tokenVerify($token,$uid) && $orderSn){
+       $orderInfo = $conn->query("SELECT status from `snail_order_info` WHERE `order_sn` = '$orderSn' LIMIT 1; ")->fetch_assoc();
+        header('HTTP/1.1 200 ok');
+        echo json_encode ( array('status'=>200, 'data'=>$orderInfo['status']) );exit();
     }else{
         header('HTTP/1.1 400 参数错误');
         echo json_encode ( array('status'=>400, 'msg'=>'参数错误') );exit();
