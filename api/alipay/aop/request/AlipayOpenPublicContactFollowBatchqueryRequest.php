@@ -3,7 +3,7 @@
  * ALIPAY API: alipay.open.public.contact.follow.batchquery request
  *
  * @author auto create
- * @since 1.0, 2016-12-08 11:56:17
+ * @since 1.0, 2018-08-21 11:05:00
  */
 class AlipayOpenPublicContactFollowBatchqueryRequest
 {

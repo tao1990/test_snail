@@ -82,7 +82,7 @@ if($ac == 'create'){
         $postId = createPackage($arr);
         if($postId){
             header('HTTP/1.1 200 ok');
-            echo json_encode ( array('status'=>200,'msg'=>'创建成功', 'postId'=>$postId,'amount'=>200) );exit();
+            echo json_encode ( array('status'=>200,'msg'=>'创建成功', 'postId'=>$postId,'amount'=>PRICE_200) );exit();
         }else{
             header('HTTP/1.1 500 SERVER ERROR');
             echo json_encode ( array('status'=>500, 'msg'=>'SERVER ERROR') );exit();
@@ -112,7 +112,7 @@ function createPackage($arr){
   $conn->query($sql);
   $insert_id = $conn->insert_id;
   if($insert_id){
-        $sql="INSERT INTO `snail_post_log` (insert_id,post_type,amount,uid,dateline) VALUES (".$insert_id.",'PACKAGE',200,".$arr['uid'].",$time)";
+        $sql="INSERT INTO `snail_post_log` (insert_id,post_type,amount,uid,dateline) VALUES (".$insert_id.",'PACKAGE',".PRICE_200.",".$arr['uid'].",$time)";
         $conn->query($sql);
         $post_id = $conn->insert_id;
   }
@@ -127,7 +127,7 @@ function getPackageByType($type,$page=1,$pageCount=10){
     
     $sqlStr = $type? " AND type = '$type'":"";
     $total = $conn->query("SELECT * from `snail_post_package` WHERE `status` = 1 AND `start_date` < $time AND `end_date` > $time $sqlStr;")->num_rows;
-    $sql="SELECT * from `snail_post_package` WHERE `status` = 1 AND `start_date` < $time AND `end_date` > $time $sqlStr limit $offset,$pageCount;";
+    $sql="SELECT * from `snail_post_package` WHERE `status` = 1 AND `start_date` < $time AND `end_date` > $time $sqlStr ORDER BY id DESC limit $offset,$pageCount;";
     $result=$conn->query($sql);
     while ($row = mysqli_fetch_assoc($result))
     {

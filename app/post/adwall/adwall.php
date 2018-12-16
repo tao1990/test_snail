@@ -82,7 +82,7 @@ if($ac == 'create'){
         $postId = createAdwall($arr);
         if($postId){
             header('HTTP/1.1 200 ok');
-            echo json_encode ( array('status'=>200,'msg'=>'创建成功', 'postId'=>$postId,'amount'=>100) );exit();
+            echo json_encode ( array('status'=>200,'msg'=>'创建成功', 'postId'=>$postId,'amount'=>PRICE_TEST) );exit();
             //echo json_encode ( array('status'=>200,'msg'=>'创建成功', 'data'=>array('postId'=>$postId)) );exit();
             //echo 'laji';exit();
         }else{
@@ -115,7 +115,7 @@ function createAdwall($arr){
   $conn->query($sql);
   $insert_id = $conn->insert_id;
   if($insert_id){
-        $sql="INSERT INTO `snail_post_log` (insert_id,post_type,amount,uid,dateline) VALUES (".$insert_id.",'ADWALL',100,".$arr['uid'].",$time)";
+        $sql="INSERT INTO `snail_post_log` (insert_id,post_type,amount,uid,dateline) VALUES (".$insert_id.",'ADWALL',".PRICE_TEST.",".$arr['uid'].",$time)";
         $conn->query($sql);
         $post_id = $conn->insert_id;
   }
@@ -131,7 +131,7 @@ function getAdWallListByType($type,$page=1,$pageCount=10){
     
     $sqlStr = $type? " AND type = '$type'":"";
     $total = $conn->query("SELECT * from `snail_post_adwall` WHERE `status` = 1 AND `start_date` < $time AND `end_date` > $time $sqlStr;")->num_rows;
-    $sql="SELECT * from `snail_post_adwall` WHERE `status` = 1 AND `start_date` < $time AND `end_date` > $time $sqlStr limit $offset,$pageCount;";
+    $sql="SELECT * from `snail_post_adwall` WHERE `status` = 1 AND `start_date` < $time AND `end_date` > $time $sqlStr ORDER BY id DESC limit $offset,$pageCount;";
     $result=$conn->query($sql);
     while ($row = mysqli_fetch_assoc($result))
     {

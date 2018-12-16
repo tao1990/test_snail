@@ -9,13 +9,15 @@ error_reporting(E_ALL);
 require_once "../../api/alipay/aop/AopClient.php";
 require_once "../../api/alipay/aop/request/AlipayTradeAppPayRequest.php";
 
-snail_log(json_decode($_POST),'zfbpay');
+//$bodyData = @file_get_contents('php://input');
+//$_POST = json_decode($bodyData,true);
     
 $aop = new AopClient();
 $aop->alipayrsaPublicKey = ZFB_PUBLIC_KEY;
 //此处验签方式必须与下单时的签名方式一致
-$result = $aop->rsaCheckV1($_POST, $aop->alipayrsaPublicKey, "RSA");
+$result = $aop->rsaCheckV1($_POST, $aop->alipayrsaPublicKey, "RSA2");
 
+snail_log(json_encode($_POST),'zfbpay');
 if($result){
     if($_POST['trade_status'] == 'TRADE_SUCCESS' ){
     
@@ -24,7 +26,7 @@ if($result){
         $out_trade_no   = $_POST['out_trade_no'];
         $trade_no       = $_POST['trade_no'];
         $trade_status   = $_POST['trade_status'];
-        $amount         = intval($_POST['total_amount']);
+        $amount         = $_POST['total_amount'];
         
         $orderInfo = $conn->query("SELECT * from `snail_order_info` WHERE `order_sn` = '$out_trade_no' LIMIT 1; ")->fetch_assoc(); 
         if($orderInfo['order_sn'] == $out_trade_no && $orderInfo['final_amount'] == $amount){

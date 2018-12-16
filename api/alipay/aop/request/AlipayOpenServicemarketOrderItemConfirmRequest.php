@@ -3,7 +3,7 @@
  * ALIPAY API: alipay.open.servicemarket.order.item.confirm request
  *
  * @author auto create
- * @since 1.0, 2016-09-20 14:23:46
+ * @since 1.0, 2018-07-09 11:11:40
  */
 class AlipayOpenServicemarketOrderItemConfirmRequest
 {

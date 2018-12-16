@@ -1,5 +1,5 @@
 <?php
-class Wxpay
+class WxpayClass
 {
     //参数配置
     public $config = array(
@@ -24,17 +24,22 @@ class Wxpay
     private $WxPayHelper;
     public function Wxpay($total_fee,$tade_no)
      {
+        
       $this->total_fee = intval($total_fee * 100);//订单的金额 1元
       $this->out_trade_no = $tade_no;// date('YmdHis') . substr(time(), - 5) . substr(microtime(), 2, 5) . sprintf('%02d', rand(0, 99));//订单号
       $this->body = '蜗牛时代广告费用';//支付描述信息
       $this->time_expire = date('YmdHis', time() + 86400);//订单支付的过期时间(eg:一天过期)
       $this->notify_url = $this->notify_url;//异步通知URL(更改支付状态)
       //数据以JSON的形式返回给APP
+      
       $app_response = $this->doPay(); 
+      
+       
       if (isset($app_response['return_code']) && $app_response['return_code'] == 'FAIL') {
        $errorCode = 100;
        $errorMsg = $app_response['return_msg'];
-       $this->echoResult($errorCode, $errorMsg);
+       return false;
+       //$this->echoResult($errorCode, $errorMsg);
       } else {
        $errorCode = 0;
        $errorMsg = 'success';
@@ -42,7 +47,8 @@ class Wxpay
         'notify_url' => $this->notify_url,
         'app_response' => $app_response,
        );
-       $this->echoResult($errorCode, $errorMsg, $responseData);
+       return $app_response;
+       //$this->echoResult($errorCode, $errorMsg, $responseData);
       }
      }
      //接口输出

@@ -15,7 +15,7 @@ $token = empty($_GET['token'])? '':addslashes($_GET['token']);
  *   @SWG\Parameter(name="type", type="string", required=false, in="query",example = "中文type类型"),
  *   @SWG\Parameter(name="region", type="string", required=false, in="query",example = "中文region"),
  *   @SWG\Parameter(name="marketing", type="string", required=false, in="query",example = "中文marketing"),
- *   @SWG\Parameter(name="money", type="string", required=false, in="query",example = "101,200(101到200之间)|0（无限制）|100（100以下）"),
+ *   @SWG\Parameter(name="money", type="string", required=false, in="query",example = "ASC|DESC"),
  *   @SWG\Parameter(name="page", type="integer", required=true, in="query",example = "1"),
  *   @SWG\Parameter(name="pageCount", type="integer", required=true, in="query",example = "10"),
  * @SWG\Response(
@@ -32,7 +32,8 @@ if($ac == 'list'){
   $type = empty($_GET['type'])? '':addslashes($_GET['type']);
   $region = empty($_GET['region'])? '':addslashes($_GET['region']);
   $marketing = empty($_GET['marketing'])? '':addslashes($_GET['marketing']);
-  $money = empty($_GET['money'])? 0:addslashes($_GET['money']);
+  //$money = empty($_GET['money'])? 0:addslashes($_GET['money']);
+  $money = ($_GET['money'] == "ASC" || $_GET['money'] == "DESC")? $_GET['money']:"";
   $page = isset($_GET['page'])?$_GET['page']:1;
   $pageCount = isset($_GET['pageCount'])?$_GET['pageCount']:10;
   if(!$page || !$pageCount){
@@ -42,7 +43,7 @@ if($ac == 'list'){
     $list = getBoxListByType($type,$region,$marketing,$money,$page,$pageCount);
     if($list){
         header('HTTP/1.1 200 OK');
-        echo json_encode ( array('status'=>200, 'data'=>array('total'=>$list['total'],'list'=>$list['list'])) );exit();
+        echo json_encode ( array('status'=>PRICE_200, 'data'=>array('total'=>$list['total'],'list'=>$list['list'])) );exit();
     }
   }
 }
@@ -96,7 +97,7 @@ if($ac == 'create'){
         $postId = createBoxShop($arr);
         if($postId){
             header('HTTP/1.1 200 ok');
-            echo json_encode ( array('status'=>200,'msg'=>'创建成功', 'postId'=>$postId,'amount'=>200) );exit();
+            echo json_encode ( array('status'=>200,'msg'=>'创建成功', 'postId'=>$postId,'amount'=>PRICE_200) );exit();
         }else{
             header('HTTP/1.1 500 SERVER ERROR');
             echo json_encode ( array('status'=>500, 'msg'=>'SERVER ERROR') );exit();
@@ -145,13 +146,18 @@ function getBoxListByType($type,$region,$marketing,$money,$page=1,$pageCount=10)
     $sqlStr.= $type? " AND type = '$type'":"";
     $sqlStr.= $region? " AND region = '$region'":"";
     $sqlStr.= $marketing? " AND marketing = '$marketing'":"";
-    if($money != 0){
-        $a = explode(',',$money);
-        if(count($a)>1){
-            $sqlStr.=" AND money BETWEEN ".$a[0]." AND ".$a[1];
-        }else{
-            $sqlStr.=" AND money <= ".$money;
-        }
+    //if($money != 0){
+//        $a = explode(',',$money);
+//        if(count($a)>1){
+//            $sqlStr.=" AND money BETWEEN ".$a[0]." AND ".$a[1];
+//        }else{
+//            $sqlStr.=" AND money <= ".$money;
+//        }
+//    }
+    if($money != ""){
+        $sqlStr.=" ORDER BY money ".$money;
+    }else{
+        $sqlStr.=" ORDER BY id DESC";
     }
     
     $total = $conn->query("SELECT * from `snail_post_boxshop` WHERE `status` = 1 AND `start_date` < $time AND `end_date` > $time $sqlStr;")->num_rows;

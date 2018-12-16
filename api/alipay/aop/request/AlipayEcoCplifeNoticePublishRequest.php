@@ -3,7 +3,7 @@
  * ALIPAY API: alipay.eco.cplife.notice.publish request
  *
  * @author auto create
- * @since 1.0, 2017-03-02 18:17:16
+ * @since 1.0, 2018-07-13 17:18:06
  */
 class AlipayEcoCplifeNoticePublishRequest
 {

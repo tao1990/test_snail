@@ -3,7 +3,7 @@
  * ALIPAY API: koubei.marketing.campaign.activity.query request
  *
  * @author auto create
- * @since 1.0, 2017-10-13 18:18:57
+ * @since 1.0, 2018-07-13 17:18:06
  */
 class KoubeiMarketingCampaignActivityQueryRequest
 {

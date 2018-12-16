@@ -153,19 +153,21 @@ if($ac == 'login'){
             'uid'=>$check['uid'],
             'mobile'=>$check['mobile'],
             'token'=>$token,
+            'username'=>$check['username'],
+            'sex'=>$check['sex'],
             'bonusInfo'=>$bonusInfo
         );
         header('HTTP/1.1 200 OK');
         echo json_encode ( array('status'=>200,'msg'=>'登录成功', 'data'=>$resArr) );exit();
     }else{
         header('HTTP/1.1 403 error');
-        echo json_encode ( array('status'=>403, 'msg'=>'check failed') );exit();
+        echo json_encode ( array('status'=>403, 'msg'=>'验证失败') );exit();
     }
 }
 
 /**
- * @SWG\Post(path="/app/user/user.php?ac=changePassword", tags={"user"},
- *   summary="更改用户密码(OK)",
+ * @SWG\Post(path="/app/user/user.php?ac=forgetPassword", tags={"user"},
+ *   summary="用户忘记密码(OK)",
  *   description="",
  *   @SWG\Parameter(name="body", type="string", required=true, in="formData",
  *     description="body" ,example = "{	'mobile':'7XXX|1XXX','password1':'','password2':'','type':'CN|RU','verifyCode':''}"
@@ -180,7 +182,7 @@ if($ac == 'login'){
  *   )
  * )
  */
-if($ac == 'changePassword'){
+if($ac == 'forgetPassword'){
     $bodyData = @file_get_contents('php://input');
     //$logFile = fopen("./log.log", "w");
 //    $txt = "$bodyData -- ".date('Y-m-d H:i:s',time())."\n";
@@ -199,6 +201,50 @@ if($ac == 'changePassword'){
         
         $arr = array('mobile'=>$mobile,'type'=>$type,'password'=>$password1);
         $change = changePw($arr);
+        if($change){
+            header('HTTP/1.1 200 OK');
+            echo json_encode ( array('status'=>200, 'msg'=>'密码修改成功') );exit();
+            
+        }else{
+            header('HTTP/1.1 500  failed');
+            echo json_encode ( array('status'=>500, 'msg'=>'failed') );exit();
+        }
+        
+    }else{
+        header('HTTP/1.1 400 params error');
+        echo json_encode ( array('status'=>400, 'msg'=>'params error') );exit();
+    }
+}
+
+/**
+ * @SWG\Post(path="/app/user/user.php?ac=changePassword", tags={"user"},
+ *   summary="用户修改密码(OK)",
+ *   description="",
+ *   @SWG\Parameter(name="body", type="string", required=true, in="formData",
+ *     description="body" ,example = "{	'uid':'','token':'','password1':'旧密码','password2':'新密码'}"
+ *   ),
+ * @SWG\Response(
+ *   response=200,
+ *   description="ok response",
+ *   ),
+ * @SWG\Response(
+ *   response="default",
+ *   description="unexpected error",
+ *   )
+ * )
+ */
+if($ac == 'changePassword'){
+    $bodyData = @file_get_contents('php://input');
+    $bodyData = json_decode($bodyData,true);
+    @$uid = $bodyData['uid'];
+    @$token = $bodyData['token'];
+    @$password1 = $bodyData['password1'];
+    @$password2 = $bodyData['password2'];
+
+    if(tokenVerify($token,$uid) && $password1 && $password2){
+        
+        $arr = array('uid'=>$uid,'password'=>$password2);
+        $change = changePwByUid($arr);
         if($change){
             header('HTTP/1.1 200 OK');
             echo json_encode ( array('status'=>200, 'msg'=>'密码修改成功') );exit();
@@ -323,6 +369,14 @@ function changePw($arr){
     $type   = $arr['type'];
     $password = md5($arr['password']);
     $do = $conn->query("UPDATE `snail_user` SET `password` = '$password' WHERE `mobile` = '$mobile' AND `type` = '$type';");
+    return $do;
+}
+
+function changePwByUid($arr){
+    global $conn;
+    $uid = $arr['uid'];
+    $password = md5($arr['password']);
+    $do = $conn->query("UPDATE `snail_user` SET `password` = '$password' WHERE `mobile` = '$uid';");
     return $do;
 }
 

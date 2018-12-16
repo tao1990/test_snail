@@ -28,12 +28,20 @@ define("NOTIFY_ZFB","http://58.247.87.162:4003/app/pay/zfb_cb.php");
 
 //wx
 define("NOTIFY_WX","http://58.247.87.162:4003/app/pay/wx_cb.php");
-
+define("WX_APPID","wx4c7fc3bd787e6967");
+define("WX_MCHID","1520854271");
+define("WX_API_KEY","d5ac70e307c46da82a25a8b9c22601fc");
 //bonus
 define("SEND_BONUS_IDS","1,2,3,4,5");
 
 //order
 define("DEFAULT_TERM",30);//广告默认展示期限
+
+//价格
+define("PRICE_100",100);
+define("PRICE_200",200);
+define("PRICE_TEST",0.01);
+
 
 
 ?>

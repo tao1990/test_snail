@@ -13,9 +13,9 @@ $token = empty($_GET['token'])? '':addslashes($_GET['token']);
  *   summary="房屋租借列表（ok）",
  *   description="",
  *   @SWG\Parameter(name="type", type="string", required=false, in="query",example = "中文type类型"),
- *   @SWG\Parameter(name="money", type="integer", required=false, in="query",example = "租金"),
+ *   @SWG\Parameter(name="money", type="integer", required=false, in="query",example = "ASC|DESC"),
  *   @SWG\Parameter(name="space", type="string", required=false, in="query",example = "户型(3|2|0)"),
- *   @SWG\Parameter(name="order", type="string", required=false, in="query",example = "ASC|DESC"),
+ *   @SWG\Parameter(name="deposit", type="string", required=false, in="query",example = "1|0"),
  *   @SWG\Parameter(name="page", type="integer", required=true, in="query",example = "1"),
  *   @SWG\Parameter(name="pageCount", type="integer", required=true, in="query",example = "10"),
  *   @SWG\Parameter(name="uid", type="integer", required=false, in="query",example = "传入uid时返回collect状态"),
@@ -33,16 +33,18 @@ if($ac == 'list'){
 
   $uid = empty($_GET['uid'])? 0:intval($_GET['uid']);
   $type = empty($_GET['type'])? '':addslashes($_GET['type']);
-  $rent = empty($_GET['money'])? 0:addslashes($_GET['money']);
+  //$rent = empty($_GET['money'])? 0:addslashes($_GET['money']);
+  $rent = ($_GET['money'] == "ASC" || $_GET['money'] == "DESC")? $_GET['money']:"";
   $space = empty($_GET['space'])? '':addslashes($_GET['space']);
-  $order = empty($_GET['order'])? 'DESC':addslashes($_GET['order']);
+  //$order = empty($_GET['order'])? 'DESC':addslashes($_GET['order']);
+  $deposit = empty($_GET['deposit'])? '':addslashes($_GET['deposit']);
   $page = isset($_GET['page'])?$_GET['page']:1;
   $pageCount = isset($_GET['pageCount'])?$_GET['pageCount']:10;
   if(!$page || !$pageCount){
     header('HTTP/1.1 400 ERROR');
     echo json_encode ( array('status'=>400, 'msg'=>'error') );exit();
   }else{
-    $list = getHouseList($type,$rent,$space,$order,$page,$pageCount);
+    $list = getHouseList($type,$rent,$space,$deposit,$page,$pageCount);
     if($uid>0){
         $list['list'] = addCollectStatus($list['list'],$uid);
     }
@@ -106,7 +108,7 @@ if($ac == 'create'){
         $postId = createHouse($arr);
         if($postId){
             header('HTTP/1.1 200 ok');
-            echo json_encode ( array('status'=>200,'msg'=>'创建成功', 'postId'=>$postId,'amount'=>200) );exit();
+            echo json_encode ( array('status'=>200,'msg'=>'创建成功', 'postId'=>$postId,'amount'=>PRICE_200) );exit();
         }else{
             header('HTTP/1.1 500 SERVER ERROR');
             echo json_encode ( array('status'=>500, 'msg'=>'SERVER ERROR') );exit();
@@ -136,14 +138,14 @@ function createHouse($arr){
   $conn->query($sql);
   $insert_id = $conn->insert_id;
   if($insert_id){
-        $sql="INSERT INTO `snail_post_log` (insert_id,post_type,amount,uid,dateline) VALUES (".$insert_id.",'HOUSE_RENT',200,".$arr['uid'].",$time)";
+        $sql="INSERT INTO `snail_post_log` (insert_id,post_type,amount,uid,dateline) VALUES (".$insert_id.",'HOUSE_RENT',".PRICE_200.",".$arr['uid'].",$time)";
         $conn->query($sql);
         $post_id = $conn->insert_id;
   }
   return $post_id;
 }
 
-function getHouseList($type,$rent,$space,$order="DESC",$page=1,$pageCount=10){
+function getHouseList($type,$rent,$space,$deposit,$page=1,$pageCount=10){
     global $conn;
     $list = array();
     $time = time();
@@ -151,18 +153,23 @@ function getHouseList($type,$rent,$space,$order="DESC",$page=1,$pageCount=10){
     $sqlStr = "";
     $sqlStr.= $type? " AND type = '$type'":"";
     $sqlStr.= $space? " AND space = '$space'":"";
-    if($rent != 0){
-        $a = explode(',',$rent);
-        if(count($a)>1){
-            $sqlStr.=" AND rent BETWEEN ".$a[0]." AND ".$a[1];
-        }else{
-            $sqlStr.=" AND rent <= ".$rent;
-        }
+    $sqlStr.= $deposit? " AND deposit_cash = 1":"";
+    if($rent != ""){
+        $sqlStr.=" ORDER BY rent ".$rent;
+    }else{
+        $sqlStr.=" ORDER BY start_date DESC";
     }
+    //if($rent != 0){
+//        $a = explode(',',$rent);
+//        if(count($a)>1){
+//            $sqlStr.=" AND rent BETWEEN ".$a[0]." AND ".$a[1];
+//        }else{
+//            $sqlStr.=" AND rent <= ".$rent;
+//        }
+//    }
     
     $total = $conn->query("SELECT * from `snail_post_house` WHERE `status` = 1 AND `start_date` < $time AND `end_date` > $time $sqlStr;")->num_rows;
-    $sql="SELECT * from `snail_post_house` WHERE `status` = 1 AND `start_date` < $time AND `end_date` > $time $sqlStr ORDER BY start_date $order limit $offset,$pageCount;";
-    //print_r($sql);
+    $sql="SELECT * from `snail_post_house` WHERE `status` = 1 AND `start_date` < $time AND `end_date` > $time $sqlStr limit $offset,$pageCount;";
     $result=$conn->query($sql);
     while ($row = mysqli_fetch_assoc($result))
     {

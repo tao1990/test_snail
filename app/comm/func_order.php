@@ -28,7 +28,7 @@ function changeOrderStatus($orderSn,$status){
             if($post_type == "OCCUP" || $post_type == "FULLTIME" || $post_type == "PARTTIME" || $post_type == "FIND") $tableName = 'snail_post_occup';
             if($post_type == "BOXSHOP") $tableName = 'snail_post_boxshop';
             if($post_type == "HOUSE_RENT") $tableName = 'snail_post_house';
-            if($post_type == "package") $tableName = 'snail_post_package';
+            if($post_type == "PACKAGE") $tableName = 'snail_post_package';
             snail_update($tableName,array('status'=>1,'start_date'=>$time,'end_date'=>$end_date),"id=$post_insert_id");
         }
     }

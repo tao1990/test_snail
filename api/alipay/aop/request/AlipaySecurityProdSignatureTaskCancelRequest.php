@@ -3,7 +3,7 @@
  * ALIPAY API: alipay.security.prod.signature.task.cancel request
  *
  * @author auto create
- * @since 1.0, 2017-08-08 10:43:08
+ * @since 1.0, 2017-12-20 15:25:04
  */
 class AlipaySecurityProdSignatureTaskCancelRequest
 {

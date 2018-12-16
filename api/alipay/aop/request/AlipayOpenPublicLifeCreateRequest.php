@@ -3,7 +3,7 @@
  * ALIPAY API: alipay.open.public.life.create request
  *
  * @author auto create
- * @since 1.0, 2017-06-15 17:39:43
+ * @since 1.0, 2017-12-18 14:57:49
  */
 class AlipayOpenPublicLifeCreateRequest
 {

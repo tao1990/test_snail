@@ -1,0 +1,29 @@
+{
+	"token": "Ym1clm6YZWpsa5uVZA==",
+	"uid": "15",
+	"type": "宾馆",
+	"title": "出租宾馆啦333333~~~",
+	"region": "流布利诺",
+	"marketing": "服装区",
+	"tags": [{
+		"冰箱": true
+	}, {
+		"电梯": true
+	}, {
+		"无线网": false
+	}, {
+		"空调": true
+	}, {
+		"电暖气": false
+	}],
+	"traffic": "1号线",
+	"space": "3|2|1",
+	"area" : "100",
+	"rent" : "50000",
+	"middle_man" : 1,
+	"deposit_cash" : 1,
+	"house_desc" : "xxxxxxxxxxxxxxxxxxxxxxxxxx",
+	"imgs": ["/upload/img/20181122/ca86592490048183f5434cf85de75149.png", "/upload/img/20181122/257d802afa16bf0163cf3c6d3ffac96d.png"],
+	"contacts_man": "Ever",
+	"contacts_mobile": "11010101010"
+} -- 2018-11-25 13:48:05

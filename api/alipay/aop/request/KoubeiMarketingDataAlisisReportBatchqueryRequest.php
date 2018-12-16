@@ -3,7 +3,7 @@
  * ALIPAY API: koubei.marketing.data.alisis.report.batchquery request
  *
  * @author auto create
- * @since 1.0, 2017-06-16 20:33:21
+ * @since 1.0, 2018-05-03 09:40:58
  */
 class KoubeiMarketingDataAlisisReportBatchqueryRequest
 {

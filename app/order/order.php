@@ -38,7 +38,7 @@ if($ac == 'create'){
     //phone check
     $resArr = array();
     $bodyData = @file_get_contents('php://input');
-    snail_log($bodyData);
+    snail_log($bodyData,'order');
     $bodyData = json_decode($bodyData,true);
     $uid    = empty($bodyData['uid'])? 0 : intval($bodyData['uid']);
     $token  = empty($bodyData['token'])? '' : $bodyData['token'];
@@ -89,21 +89,27 @@ if($ac == 'create'){
                     $subject = "蜗牛时代广告费".$order['post_id'];
                     $body = "一笔广告费";
                     $payCode = snail_alipay_create_order($orderSn,$amount,$subject,$body);
-                    $resArr['payCode'] = $payCode;
+                    //$resArr['payCode'] = $payCode;
+                    $resArr['payInfo'] = $payCode;
                 }
                 if($order['pay_method'] == "WECHAT"){
-                    $payCode = snail_wxpay_create_order($orderSn,$amount);
-                    $resArr['payCode'] = $payCode;
+                    require_once("../pay/pay.php");
+                    $orderSn = $order['order_sn'];
+                    $amount = $order['final_amount'];
+                    $pay = snail_wxpay_create_order($orderSn,$amount);
+                    //$resArr['payCode'] = $pay['payCode'];
+//                    $resArr['sgin'] = $pay['sgin'];
+                    $resArr['payInfo'] = $pay;
                 }
                 
                 
             }
             //返回app
-            $resArr['order_sn'] = $order['order_sn'];
+            $resArr['orderSn'] = $order['order_sn'];
             $resArr['needPay']  = $needPay;
             
             header('HTTP/1.1 200 ok');
-            echo json_encode ( array('status'=>200, 'data'=>json_encode($resArr)) );exit();
+            echo json_encode ( array('status'=>200, 'data'=>$resArr) );exit();
         }
     }else{
         header('HTTP/1.1 400 参数错误');
@@ -148,12 +154,12 @@ if($ac == "list"){
 }
 
 /**
- * @SWG\Get(path="/app/order/order.php?ac=cancel", tags={"order"},
+ * @SWG\Post(path="/app/order/order.php?ac=cancel", tags={"order"},
  *   summary="订单取消",
  *   description="",
- *   @SWG\Parameter(name="uid", type="integer", required=true, in="query",example = ""),
- *   @SWG\Parameter(name="token", type="string", required=true, in="query",example = ""),
- *   @SWG\Parameter(name="orderSn", type="string", required=true, in="query",example = ""),
+ *   @SWG\Parameter(name="body", type="string", required=true, in="formData",
+ *     description="body" ,example = "{	'uid':'',	'token':'','orderSn':''"
+ *   ),
  * @SWG\Response(
  *   response=200,
  *   description="ok response",
@@ -165,9 +171,11 @@ if($ac == "list"){
  * )
  */
 if($ac == "cancel"){
-    $uid    = empty($_GET['uid'])? 0 : intval($_GET['uid']);
-    $token  = empty($_GET['token'])? 0 : $_GET['token'];
-    $orderSn = empty($_GET['orderSn'])? '' : $_GET['orderSn'];
+    $bodyData = @file_get_contents('php://input');
+    $bodyData = json_decode($bodyData,true);
+    $uid    = empty($bodyData['uid'])? 0 : intval($bodyData['uid']);
+    $token  = empty($bodyData['token'])? 0 : $bodyData['token'];
+    $orderSn = empty($bodyData['orderSn'])? '' : $bodyData['orderSn'];
     if($uid > 0 && tokenVerify($token,$uid) && $orderSn){
         snail_update("snail_order_info",array('status'=>'CANCEL'),"order_sn=$orderSn AND uid=$uid");
         header('HTTP/1.1 200 ok');

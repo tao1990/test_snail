@@ -3,7 +3,7 @@
  * ALIPAY API: alipay.daowei.order.refuse request
  *
  * @author auto create
- * @since 1.0, 2017-01-16 11:30:46
+ * @since 1.0, 2018-03-23 13:24:12
  */
 class AlipayDaoweiOrderRefuseRequest
 {

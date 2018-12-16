@@ -3,7 +3,7 @@
  * ALIPAY API: alipay.daowei.order.cancel request
  *
  * @author auto create
- * @since 1.0, 2017-03-30 11:55:47
+ * @since 1.0, 2018-03-23 13:21:44
  */
 class AlipayDaoweiOrderCancelRequest
 {
