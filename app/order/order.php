@@ -8,18 +8,9 @@ $ac = empty($_GET['ac'])? '':addslashes($_GET['ac']);
 //$m = empty($_GET['m'])? '':addslashes($_GET['m']);
 
 
-//require_once("../pay/pay.php");
-//$orderSn = '2018120800998811';
-//$amount = 100;
-//$subject = "蜗牛时代广告费";
-//$body = "一笔广告费";
-//$mess = snail_alipay_create_order($orderSn,$amount,$subject,$body);
-//
-//print_r($mess);
-//die;
 /**
  * @SWG\Post(path="/app/order/order.php?ac=create", tags={"order"},
- *   summary="创建订单(调试中 未接通平台2)",
+ *   summary="创建订单(ok)",
  *   description="",
  *   @SWG\Parameter(name="body", type="string", required=true, in="formData",
  *     description="body" ,example = "{	'uid':'',	'token':'','postId':'','bonusId':'','payMethod':'WECHAT|ALIPAY'}"
@@ -36,6 +27,7 @@ $ac = empty($_GET['ac'])? '':addslashes($_GET['ac']);
  */
 if($ac == 'create'){
     //phone check
+    
     $resArr = array();
     $bodyData = @file_get_contents('php://input');
     snail_log($bodyData,'order');
@@ -59,8 +51,8 @@ if($ac == 'create'){
                 if($bonusId>0){
                     $bonusInfo = checkBonus($bonusId,$uid,$postInfo['post_type']);
                     if(!$bonusInfo){
-                        header('HTTP/1.1 403 优惠券不存在');
-                        echo json_encode ( array('status'=>403, 'msg'=>'优惠券不存在') );exit();
+                        header('HTTP/1.1 403 优惠券不能使用');
+                        echo json_encode ( array('status'=>403, 'msg'=>'优惠券不能使用') );exit();
                     }
                 }
                 $order = createOrder($postInfo,$bonusInfo);
@@ -71,9 +63,8 @@ if($ac == 'create'){
             }
         }
         if($order){
-            
             //扣优惠券
-            //if($bonusId>0) useBonus($bonusId,$order['order_sn']);
+            if($bonusId>0) useBonus($bonusId,$order['order_sn']);
             if($order['final_amount'] == 0){
                 //免支付
                 $order['status'] = "PAIDED";
@@ -82,23 +73,22 @@ if($ac == 'create'){
             }else{
                 //生成平台支付订单号
                 $needPay = true;
-                if($order['pay_method'] == "ALIPAY"){
+                //if($order['pay_method'] == "ALIPAY"){
+                if($payMethod == "ALIPAY"){
                     require_once("../pay/pay.php");
                     $orderSn = $order['order_sn'];
                     $amount = $order['final_amount'];
-                    $subject = "蜗牛时代广告费".$order['post_id'];
+                    $subject = "蜗牛时代广告费";//.$order['post_id']
                     $body = "一笔广告费";
                     $payCode = snail_alipay_create_order($orderSn,$amount,$subject,$body);
-                    //$resArr['payCode'] = $payCode;
                     $resArr['payInfo'] = $payCode;
                 }
-                if($order['pay_method'] == "WECHAT"){
+                //if($order['pay_method'] == "WECHAT"){
+                if($payMethod == "WECHAT"){
                     require_once("../pay/pay.php");
                     $orderSn = $order['order_sn'];
                     $amount = $order['final_amount'];
                     $pay = snail_wxpay_create_order($orderSn,$amount);
-                    //$resArr['payCode'] = $pay['payCode'];
-//                    $resArr['sgin'] = $pay['sgin'];
                     $resArr['payInfo'] = $pay;
                 }
                 
@@ -158,7 +148,7 @@ if($ac == "list"){
  *   summary="订单取消",
  *   description="",
  *   @SWG\Parameter(name="body", type="string", required=true, in="formData",
- *     description="body" ,example = "{	'uid':'',	'token':'','orderSn':''"
+ *     description="body" ,example = "{	'uid':'',	'token':'','orderSn':''}"
  *   ),
  * @SWG\Response(
  *   response=200,
@@ -180,6 +170,65 @@ if($ac == "cancel"){
         snail_update("snail_order_info",array('status'=>'CANCEL'),"order_sn=$orderSn AND uid=$uid");
         header('HTTP/1.1 200 ok');
         echo json_encode ( array('status'=>200, 'msg'=>'取消成功') );exit();
+    }else{
+        header('HTTP/1.1 400 参数错误');
+        echo json_encode ( array('status'=>400, 'msg'=>'参数错误') );exit();
+    }
+}
+
+
+/**
+ * @SWG\Post(path="/app/order/order.php?ac=changeAdStatus", tags={"order"},
+ *   summary="广告审核状态更改",
+ *   description="",
+ *   @SWG\Parameter(name="body", type="string", required=true, in="formData",
+ *     description="body" ,example = "{	'type':'','id':'','status':'1|3(1:通过3：审核未通过)'}"
+ *   ),
+ * @SWG\Response(
+ *   response=200,
+ *   description="ok response",
+ *   ),
+ * @SWG\Response(
+ *   response="default",
+ *   description="unexpected error",
+ *   )
+ * )
+ */
+
+if($ac == "changeAdStatus"){
+    $bodyData = @file_get_contents('php://input');
+    $bodyData = json_decode($bodyData,true);
+    $uid    = empty($bodyData['uid'])? 0 : intval($bodyData['uid']);
+    $token  = empty($bodyData['token'])? 0 : $bodyData['token'];
+    $status = empty($bodyData['status'])? '' : $bodyData['status'];
+    $type   = empty($bodyData['type'])? '' : $bodyData['type'];
+    $id     = empty($bodyData['id'])? '' : $bodyData['id'];
+    if($uid > 0 && tokenVerify($token,$uid) && ($status == 1 || $status == 3) && $id>0 && $type){
+        
+        if($type == 'OCCUP' ||$type == 'FULLTIME' || $type == 'PARTTIME' || $type == 'FIND'){
+            $table ="snail_post_occup";
+        }elseif($type == 'ADWALL'){
+            $table ="snail_post_adwall";
+        }elseif($type == 'PACKAGE'){
+            $table ="snail_post_package";
+        }elseif($type == 'BOXSHOP'){
+            $table ="snail_post_boxshop";
+        }elseif($type == 'HOUSE_RENT'){
+            $table ="snail_post_house";
+        }else{
+            header('HTTP/1.1 400 参数错误');
+            echo json_encode ( array('status'=>400, 'msg'=>'参数错误') );exit();
+        }
+        $update = snail_update($table,array('status'=>$status),"id=$id;");
+        if($update && $status == 3){
+            
+            $orderSn = getOrderSnByTypeId($type,$id);
+            $msg =  "很抱歉，您的订单$orderSn \n由于违反国家规定没能通过审核，请重新修改再提交，如还有问题请联系客服尽快解决您好！";
+            sendMessage($uid,'ORDER','审核未通过',$msg);
+        }
+        
+        header('HTTP/1.1 200 ok');
+        echo json_encode ( array('status'=>200, 'msg'=>'操作成功') );exit();
     }else{
         header('HTTP/1.1 400 参数错误');
         echo json_encode ( array('status'=>400, 'msg'=>'参数错误') );exit();

@@ -76,16 +76,16 @@ if($ac == 'create'){
     $arr['work_type'] = empty($bodyData['work_type'])? '':$bodyData['work_type'];
     $arr['industry_type'] = empty($bodyData['industry_type'])? '':$bodyData['industry_type'];
     $arr['salary'] = empty($bodyData['salary'])? '':$bodyData['salary'];
-    $arr['salary_type'] = empty($bodyData['salary_type'])? 'RMB':$bodyData['salary_type'];
+    $arr['salary_type'] = empty($bodyData['salary_type'])? 'RUB':$bodyData['salary_type'];
     $arr['sex'] = empty($bodyData['sex'])? '男':$bodyData['sex'];
     $arr['age'] = empty($bodyData['age'])? '':$bodyData['age'];
     $arr['content'] = empty($bodyData['content'])? '':$bodyData['content'];
     $arr['contacts_man'] = empty($bodyData['contacts_man'])? '':$bodyData['contacts_man'];
     $arr['contacts_mobile'] = empty($bodyData['contacts_mobile'])? '':$bodyData['contacts_mobile'];
     $amount = $arr['type']=="我要求职"? PRICE_100:PRICE_200;
-    if( $arr['uid'] == 0 || !$arr['type'] || !$arr['title'] || !$arr['contacts_man'] || !$arr['contacts_mobile']){
+    if( $arr['uid'] == 0 || !$arr['type'] || !$arr['title'] || !$arr['contacts_man'] || !$arr['contacts_mobile'] || !$arr['work_type'] || !$arr['industry_type'] || !$arr['age'] || !$arr['content']){
         header('HTTP/1.1 400 ERROR');
-        echo json_encode ( array('status'=>400, 'msg'=>'params error') );exit();
+        echo json_encode ( array('status'=>400, 'msg'=>'请填写完整的信息') );exit();
     }else{
         $postId = createOccup($arr,$amount);
         if($postId){
@@ -151,7 +151,7 @@ function getOccupByType($type,$workType,$page=1,$pageCount=10){
       $row2['tag1']    = getOccupTag($row['type']);
       $row2['tag2']    = $row['work_type'];
       $row2['tag3']    = $row['industry_type'];
-      $row2['salary']    = $row['salary'];
+      $row2['salary']    = $row['salary'] == 0? '面议':ceil($row['salary']);
       $row2['salaryType']    = $row['salary_type'];
       $row2['startDate']     = $row['start_date'];
       $list[] = $row2;

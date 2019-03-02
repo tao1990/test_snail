@@ -18,7 +18,7 @@ function changeOrderStatus($orderSn,$status){
         snail_update('snail_order_info',$arr,"order_sn=$orderSn");
         
         //改变广告状态
-        $order = $conn->query("SELECT B.insert_id,B.post_type from `snail_order_info` A LEFT JOIN `snail_post_log` B ON A.post_id = B.id WHERE A.order_sn = '$orderSn' LIMIT 1; ")->fetch_assoc();   
+        $order = $conn->query("SELECT A.uid,B.insert_id,B.post_type from `snail_order_info` A LEFT JOIN `snail_post_log` B ON A.post_id = B.id WHERE A.order_sn = '$orderSn' LIMIT 1; ")->fetch_assoc();   
         if($arr['status'] == "PAIDED"){
             $post_insert_id = $order['insert_id'];
             $post_type      = $order['post_type'];
@@ -30,6 +30,10 @@ function changeOrderStatus($orderSn,$status){
             if($post_type == "HOUSE_RENT") $tableName = 'snail_post_house';
             if($post_type == "PACKAGE") $tableName = 'snail_post_package';
             snail_update($tableName,array('status'=>1,'start_date'=>$time,'end_date'=>$end_date),"id=$post_insert_id");
+            
+            //$msg =  "恭喜，您的订单$orderSn \n已通过审核并成功发布，感谢您的支持与信任！";
+            $msg =  "恭喜，您刊登的广告已通过审核并成功发布，感谢您的支持与信任！";
+            sendMessage($order['uid'],'ORDER','审核已通过',$msg);
         }
     }
     

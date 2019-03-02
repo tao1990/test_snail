@@ -6,6 +6,32 @@ require_once("../comm/comm.php");
 $ac = empty($_GET['ac'])? '':addslashes($_GET['ac']);
 //$m = empty($_GET['m'])? '':addslashes($_GET['m']);
 
+/**
+ * @SWG\Get(path="/app/other/message.php?ac=unreadCount", tags={"other"},
+ *   summary="获取未读消息数(ok)",
+ *   description="",
+ * @SWG\Parameter(name="uid", type="string", required=true, in="query",example = ""),
+ * @SWG\Response(
+ *   response=200,
+ *   description="ok response",
+ *   ),
+ * @SWG\Response(
+ *   response="default",
+ *   description="unexpected error",
+ *   )
+ * )
+ */
+if($ac == 'unreadCount'){
+    $uid = empty($_GET['uid'])? 0:$_GET['uid'];
+    if($uid > 0){
+        $count = getUnreadNum($uid);
+        header('HTTP/1.1 200 OK');
+        echo json_encode ( array('status'=>200, 'data'=>$count) );exit();
+    }else{
+        header('HTTP/1.1 403 error');
+        echo json_encode ( array('status'=>403, 'msg'=>'error') );exit();
+    }
+}
 
 /**
  * @SWG\Get(path="/app/other/message.php?ac=list", tags={"other"},
@@ -64,6 +90,7 @@ if($ac == 'infoList'){
     $type = empty($_GET['type'])? '':$_GET['type'];
     if(tokenVerify($token,$uid) && $uid>0 && $token && $type){
         $list = getMessageInfoList($uid,$type);
+        snail_update('snail_message',array('unread'=>0),"uid=$uid AND type=$type");
         header('HTTP/1.1 200 OK');
         echo json_encode ( array('status'=>200, 'data'=>$list) );exit();
     }else{
@@ -79,6 +106,11 @@ if($ac == 'infoList'){
 
 
 /****************************************************FUNC*************************************************************/
+
+function getUnreadNum($uid){
+    global $conn;
+    return $conn->query("SELECT count(*) as count from `snail_message` WHERE `uid` = $uid AND `unread`=1; ")->fetch_assoc();
+}
 
 function getMessageList($uid){
     global $conn;

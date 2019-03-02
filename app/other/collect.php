@@ -89,7 +89,7 @@ function getCollectList($uid,$type){
     $resList = [];
     $sqlStr = "";
     $sqlStr.=" AND type = '".$type."'";
-    $collectRes = $conn->query("SELECT * FROM `snail_collect` WHERE uid = $uid $sqlStr;");
+    $collectRes = $conn->query("SELECT * FROM `snail_collect` WHERE uid = $uid $sqlStr ORDER BY id DESC;");
     while ($row = mysqli_fetch_assoc($collectRes))
     {
       $list[] = $row;
@@ -145,7 +145,7 @@ function getMoreInfo($list,$type){
                   $row2['tag1']    = getOccupTag($row['type']);
                   $row2['tag2']    = $row['work_type'];
                   $row2['tag3']    = $row['industry_type'];
-                  $row2['salary']    = $row['salary'];
+                  $row2['salary']    = $row['salary'] == 0? '面议':ceil($row['salary']);
                   $row2['salaryType']    = $row['salary_type'];
                   $row2['startDate']     = $row['start_date'];
                   $resList[] = $row2;
@@ -154,6 +154,8 @@ function getMoreInfo($list,$type){
                   $row2['typeCode']     = "ADWALL";  
                   $row2['typeName'] = $row['type'];
                   $row2['title']    = $row['title'];
+                  $row2['salary']    = $row['salary'];
+                  $row2['salaryType']    = $row['salary_type'];
                   $row2['startDate']     = $row['start_date'];
                   $resList[] = $row2;
             }elseif($type == 'PACKAGE'){
@@ -179,7 +181,7 @@ function getMoreInfo($list,$type){
                   $row2['typeCode']     = "HOUSE_RENT";
                   $row2['typeName'] = $row['type'];
                   $row2['title']    = $row['title'];
-                  $row2['space']    = getAreaInfo($row['space']);
+                  $row2['space']    = getAreaInfo($row['space'],$row['type']);
                   $row2['area']    = $row['area'];
                   $row2['money']    = $row['rent'];
                   $row2['img']      = json_decode($row['imgs'])[0];
@@ -192,9 +194,18 @@ function getMoreInfo($list,$type){
     return $resList;
     
 }
-function getAreaInfo($str){
-    $a = explode('|',$str);
-    return $a[0]."房".$a[1]."厨".$a[2]."卫";
+function getAreaInfo($str,$type){
+    if($type == "拼床位"){
+        return $str."个";
+    }else{
+        $a = explode('|',$str);
+        if($a[1]){
+            return $a[0]."室".$a[1]."厅".$a[2]."卫";
+        }else{
+            return $a[0]."位";
+        }   
+    }
+    
 }
 function getOccupCode($str){
     if($str == "全职招聘") return "FULLTIME";

@@ -82,7 +82,7 @@ function getBoxShop($keywords){
       $row2['type']     = "BOXSHOP";  
       $row2['typename'] = $row['type'];
       $row2['title']    = $row['title'];
-      $row2['money']    = $row['money'];
+      $row2['money']    = ceil($row['money']);
       $row2['tag1']     = $row['type'];
       $row2['tag2']     = "面积".$row['area'];
       $row2['start_date']     = $row['start_date'];
@@ -102,7 +102,7 @@ function getHouse($keywords){
       $row2['type']     = "HOUSE_RENT";  
       $row2['typename'] = $row['type'];
       $row2['title']    = $row['title'];
-      $row2['money']    = $row['rent'];
+      $row2['money']    = ceil($row['rent']);
       $row2['tag1']     = $row['type'];
       $row2['tag2']     = "面积".$row['area'];
       $row2['start_date']     = $row['start_date'];
@@ -122,7 +122,7 @@ function getOccup($keywords){
       $row2['type']     = "OCCUP";  
       $row2['typename'] = $row['type'];
       $row2['title']    = $row['title'];
-      $row2['money']    = $row['salary'];
+      $row2['money']    = ceil($row['salary']);
       $row2['money_type']    = $row['salary_type'];
       $row2['tag1']     = $row['type'];
       $row2['tag2']     = $row['work_type'];

@@ -3,16 +3,12 @@
 header("Access-Control-Allow-Origin: *");
 header("Content-type: application/json; charset=utf-8");
 require_once("../comm/comm.php");
-
 error_reporting(E_ALL);
-
 require_once "../../api/wxpay/wxpay.php";
-
-
-$wxpay = new Wxpay;  //实例化微信支付类
+$wxpay = new WxpayClass;  //瀹炰緥鍖栧井淇℃敮浠樼被
 $verify_result = $wxpay->verifyNotify();
 
-snail_log(json_decode($verify_result),'wxpay');
+snail_log(json_encode($verify_result),'wxpay');
 
 if($verify_result['return_code'] == 'SUCCESS' && $verify_result['result_code'] == 'SUCCESS'){
     $out_trade_no = $verify_result['out_trade_no'];
@@ -28,3 +24,5 @@ if($verify_result['return_code'] == 'SUCCESS' && $verify_result['result_code'] =
 }else{
     exit('<xml><return_code><![CDATA[FAIL]]></return_code><return_msg><![CDATA[ERROR]]></return_msg></xml>');
 }
+
+

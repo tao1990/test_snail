@@ -66,11 +66,28 @@ function getDetail($type,$id,$postId,$uid){
         $sql ="SELECT * from `snail_post_boxshop` WHERE id = $id limit 1;";
     }elseif($type == 'HOUSE_RENT'){
         $sql ="SELECT * from `snail_post_house` WHERE id = $id limit 1;";
+    }elseif($type == 'BRING'){
+        $sql ="SELECT * from `snail_post_bring` WHERE id = $id limit 1;";
+    }elseif($type == 'BUYING'){
+        $sql ="SELECT * from `snail_post_buying` WHERE id = $id limit 1;";
+    }elseif($type == 'RESTAURANT'){
+        $sql ="SELECT * from `snail_post_restaurant` WHERE id = $id limit 1;";
+    }elseif($type == 'TOURISTDEST'){
+        $sql ="SELECT * from `snail_post_touristdest` WHERE id = $id limit 1;";
     }
     $info=$conn->query($sql)->fetch_assoc();
     if($info['tags'])$info['tags'] = json_decode($info['tags']); 
-    if($info['imgs'])$info['imgs'] = json_decode($info['imgs']); 
+    if($info['imgs'])$info['imgs'] = json_decode($info['imgs']);
     
+    if($info['type'] == "我要求职"){
+        $info['age'] = $info['age']."岁";
+    }
+    if($info['salary'] == 0){
+        $info['salary'] = "面议";
+    }
+    $info['typeName'] = $info['type'];
+    $info['type'] = $type;
+     
     if($uid>0){
         $info = addCollectStatus($info,$type,$uid);
     }

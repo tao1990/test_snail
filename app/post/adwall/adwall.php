@@ -71,6 +71,8 @@ if($ac == 'create'){
     $arr['uid'] = empty($bodyData['uid'])? 0:$bodyData['uid'];
     $arr['type']  = empty($bodyData['type'])? '':$bodyData['type'];
     $arr['title'] = empty($bodyData['title'])? '':$bodyData['title'];
+    $arr['salary'] = empty($bodyData['salary'])? '':$bodyData['salary'];
+    $arr['salary_type'] = empty($bodyData['salary_type'])? 'RMB':$bodyData['salary_type'];
     $arr['content'] = empty($bodyData['content'])? '':$bodyData['content'];
     $arr['contacts_man'] = empty($bodyData['contacts_man'])? '':$bodyData['contacts_man'];
     $arr['contacts_mobile'] = empty($bodyData['contacts_mobile'])? '':$bodyData['contacts_mobile'];
@@ -82,7 +84,7 @@ if($ac == 'create'){
         $postId = createAdwall($arr);
         if($postId){
             header('HTTP/1.1 200 ok');
-            echo json_encode ( array('status'=>200,'msg'=>'创建成功', 'postId'=>$postId,'amount'=>PRICE_TEST) );exit();
+            echo json_encode ( array('status'=>200,'msg'=>'创建成功', 'postId'=>$postId,'amount'=>PRICE_100) );exit();
             //echo json_encode ( array('status'=>200,'msg'=>'创建成功', 'data'=>array('postId'=>$postId)) );exit();
             //echo 'laji';exit();
         }else{
@@ -109,13 +111,13 @@ function createAdwall($arr){
   global $conn;
   $time = time();
   $post_id = 0;
-  $sql="INSERT INTO `snail_post_adwall` (uid,type,title,content,contacts_man,contacts_mobile,status)
-  VALUES (".$arr['uid'].",'".$arr['type']."','".$arr['title']."','".$arr['content']."','".$arr['contacts_man']."','".$arr['contacts_mobile']."',0);";
+  $sql="INSERT INTO `snail_post_adwall` (uid,type,title,salary,salary_type,content,contacts_man,contacts_mobile,status)
+  VALUES (".$arr['uid'].",'".$arr['type']."','".$arr['title']."','".$arr['salary']."','".$arr['salary_type']."','".$arr['content']."','".$arr['contacts_man']."','".$arr['contacts_mobile']."',0);";
  
   $conn->query($sql);
   $insert_id = $conn->insert_id;
   if($insert_id){
-        $sql="INSERT INTO `snail_post_log` (insert_id,post_type,amount,uid,dateline) VALUES (".$insert_id.",'ADWALL',".PRICE_TEST.",".$arr['uid'].",$time)";
+        $sql="INSERT INTO `snail_post_log` (insert_id,post_type,amount,uid,dateline) VALUES (".$insert_id.",'ADWALL',".PRICE_100.",".$arr['uid'].",$time)";
         $conn->query($sql);
         $post_id = $conn->insert_id;
   }
@@ -139,6 +141,8 @@ function getAdWallListByType($type,$page=1,$pageCount=10){
       $row2['typeCode']     = "ADWALL";  
       $row2['typeName'] = $row['type'];
       $row2['title']    = $row['title'];
+      $row2['salary']    = $row['salary'] == 0? '面议':ceil($row['salary']);
+      $row2['salaryType']    = $row['salary_type'];
       $row2['startDate']     = $row['start_date'];
       $list[] = $row2;
     }

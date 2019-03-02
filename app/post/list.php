@@ -42,7 +42,7 @@ $ac = empty($_GET['ac'])? '':addslashes($_GET['ac']);
 function getReleaseList($uid,$status){
     global $conn;
     $list = [];
-    $sql ="SELECT insert_id,post_type from `snail_order_info` A LEFT JOIN `snail_post_log` B ON A.post_id = B.id WHERE A.uid = $uid AND status = 'PAIDED';";
+    $sql ="SELECT insert_id,post_type,order_id from `snail_order_info` A LEFT JOIN `snail_post_log` B ON A.post_id = B.id WHERE A.uid = $uid AND status = 'PAIDED' ORDER BY order_id DESC;";
     $result=$conn->query($sql);
     while ($row = mysqli_fetch_assoc($result))
     {
@@ -65,7 +65,7 @@ function getPostInfo($id,$type,$status){
           $resList['type']     = "OCCUP";  
           $resList['typename'] = $list['type'];
           $resList['title']    = $list['title'];
-          $resList['money']    = $list['salary'];
+          $resList['money']    = ceil($list['salary']);
           $resList['money_type']    = $list['salary_type'];
           $resList['tag1']     = $list['type'];
           $resList['tag2']     = $list['work_type'];
@@ -80,7 +80,8 @@ function getPostInfo($id,$type,$status){
           $resList['type']     = "ADWALL";  
           $resList['typename'] = $list['type'];
           $resList['title']    = $list['title'];
-          $resList['money_type']    = "RUB";
+          $resList['money']    = ceil($list['salary']);
+          $resList['money_type']    = $list['salary_type'];
           $resList['tag1']     = $list['type'];
           $resList['start_date']     = $list['start_date'];
         }
@@ -103,7 +104,7 @@ function getPostInfo($id,$type,$status){
           $resList['type']     = "BOXSHOP";  
           $resList['typename'] = $list['type'];
           $resList['title']    = $list['title'];
-          $resList['money']    = $list['money'];
+          $resList['money']    = ceil($list['money']);
           $resList['money_type']    = "RUB";
           $resList['tag1']     = $list['type'];
           $resList['tag2']     = "面积".$list['area'];
@@ -116,10 +117,54 @@ function getPostInfo($id,$type,$status){
           $resList['type']     = "HOUSE_RENT";  
           $resList['typename'] = $list['type'];
           $resList['title']    = $list['title'];
-          $resList['money']    = $list['rent'];
+          $resList['money']    = ceil($list['rent']);
           $resList['money_type']    = "RUB";
           $resList['tag1']     = $list['type'];
           $resList['tag2']     = "面积".$list['area'];
+          $resList['start_date']     = $list['start_date'];
+        }
+    }elseif($type == 'BRING'){
+        $sql ="SELECT * from `snail_post_bring` WHERE id = $id AND status = $status limit 1;";
+        $list = $conn->query($sql)->fetch_assoc();
+        if($list){
+          $resList['type']     = "BRING";  
+          $resList['typename'] = $list['type'];
+          $resList['title']    = $list['title'];
+          $resList['tag1']     = $list['type'];
+          $resList['tag2']     = $list['arrive_city'];
+          $resList['tag3']     = $list['go_time'];
+          $resList['start_date']     = $list['start_date'];
+        }
+    }elseif($type == 'BUYING'){
+        $sql ="SELECT * from `snail_post_buying` WHERE id = $id AND status = $status limit 1;";
+        $list = $conn->query($sql)->fetch_assoc();
+        if($list){
+          $resList['type']     = "BUYING";  
+          $resList['typename'] = $list['type'];
+          $resList['title']    = $list['title'];
+          $resList['tag1']     = $list['type'];
+          $resList['tag2']     = $list['buying_city'];
+          $resList['start_date']     = $list['start_date'];
+        }
+    }elseif($type == 'RESTAURANT'){
+        $sql ="SELECT * from `snail_post_restaurant` WHERE id = $id AND status = $status limit 1;";
+        $list = $conn->query($sql)->fetch_assoc();
+        if($list){
+          $resList['type']     = "RESTAURANT";  
+          $resList['typename'] = $list['type'];
+          $resList['title']    = $list['title'];
+          $resList['tag1']     = $list['region'];
+          $resList['tag2']     = $list['business_hour'];
+          $resList['start_date']     = $list['start_date'];
+        }
+    }elseif($type == 'TOURISTDEST'){
+        $sql ="SELECT * from `snail_post_touristdest` WHERE id = $id AND status = $status limit 1;";
+        $list = $conn->query($sql)->fetch_assoc();
+        if($list){
+          $resList['type']     = "TOURISTDEST";  
+          $resList['typename'] = $list['type'];
+          $resList['title']    = $list['title'];
+          $resList['tag1']     = json_decode($list['tags']);
           $resList['start_date']     = $list['start_date'];
         }
     }
@@ -128,10 +173,7 @@ function getPostInfo($id,$type,$status){
 }
 
 
-function getAreaInfo($str){
-    $a = explode('|',$str);
-    return $a[0]."房".$a[1]."厨".$a[2]."卫";
-}
+
 function getOccupCode($str){
     if($str == "全职招聘") return "FULLTIME";
     if($str == "兼职招聘") return "PARTTIME";

@@ -43,7 +43,7 @@ if($ac == 'list'){
     $list = getBoxListByType($type,$region,$marketing,$money,$page,$pageCount);
     if($list){
         header('HTTP/1.1 200 OK');
-        echo json_encode ( array('status'=>PRICE_200, 'data'=>array('total'=>$list['total'],'list'=>$list['list'])) );exit();
+        echo json_encode ( array('status'=>200, 'data'=>array('total'=>$list['total'],'list'=>$list['list'])) );exit();
     }
   }
 }
@@ -70,10 +70,6 @@ if($ac == 'create'){
   //$token = empty($_GET['token'])? '':$_GET['token'];
   $bodyData = @file_get_contents('php://input');
   snail_log($bodyData);
-  //$logFile = fopen("./boxlog.log", "w");
-//    $txt = "$bodyData -- ".date('Y-m-d H:i:s',time())."\n";
-//    fwrite($logFile, $txt);
-//    fclose($logFile); 
   $bodyData = json_decode($bodyData,true);
   $token  = empty($bodyData['token'])? '':$bodyData['token'];
   if(tokenVerify($token)){
@@ -90,9 +86,9 @@ if($ac == 'create'){
     $arr['contacts_man'] = empty($bodyData['contacts_man'])? '':$bodyData['contacts_man'];
     $arr['contacts_mobile'] = empty($bodyData['contacts_mobile'])? '':$bodyData['contacts_mobile'];
     
-    if( $arr['uid'] == 0 || !$arr['type'] || !$arr['title'] || !$arr['contacts_man'] || !$arr['contacts_mobile']){
+    if( $arr['uid'] == 0 || !$arr['type'] || !$arr['title'] || !$arr['contacts_man'] || !$arr['contacts_mobile'] || !$arr['region'] || !$arr['marketing'] || !$arr['area'] || !$arr['content'] ){
         header('HTTP/1.1 400 ERROR');
-        echo json_encode ( array('status'=>400, 'msg'=>'error') );exit();
+        echo json_encode ( array('status'=>400, 'msg'=>'请填写完整的信息') );exit();
     }else{
         $postId = createBoxShop($arr);
         if($postId){
@@ -129,7 +125,7 @@ function createBoxShop($arr){
   $conn->query($sql);
   $insert_id = $conn->insert_id;
   if($insert_id){
-        $sql="INSERT INTO `snail_post_log` (insert_id,post_type,amount,uid,dateline) VALUES (".$insert_id.",'BOXSHOP',200,".$arr['uid'].",$time)";
+        $sql="INSERT INTO `snail_post_log` (insert_id,post_type,amount,uid,dateline) VALUES (".$insert_id.",'BOXSHOP',".PRICE_200.",".$arr['uid'].",$time)";
         $conn->query($sql);
         $post_id = $conn->insert_id;
   }

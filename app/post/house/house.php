@@ -77,10 +77,6 @@ if($ac == 'list'){
 if($ac == 'create'){
   //$token = empty($_GET['token'])? '':$_GET['token'];
   $bodyData = @file_get_contents('php://input');
-  //$logFile = fopen("./houselog.log", "w");
-//    $txt = "$bodyData -- ".date('Y-m-d H:i:s',time())."\n";
-//    fwrite($logFile, $txt);
-//    fclose($logFile); 
   snail_log($bodyData);
   $bodyData = json_decode($bodyData,true);
   $token = empty($bodyData['token'])? '':$bodyData['token'];
@@ -101,9 +97,9 @@ if($ac == 'create'){
     $arr['contacts_man'] = empty($bodyData['contacts_man'])? '':$bodyData['contacts_man'];
     $arr['contacts_mobile'] = empty($bodyData['contacts_mobile'])? '':$bodyData['contacts_mobile'];
     
-    if( $arr['uid'] == 0 || !$arr['type'] || !$arr['title'] || !$arr['contacts_man'] || !$arr['contacts_mobile']){
+    if( $arr['uid'] == 0 || !$arr['type'] || !$arr['title'] || !$arr['contacts_man'] || !$arr['contacts_mobile'] || !$arr['traffic'] || !$arr['space'] || !$arr['area'] || !$arr['rent'] || !$arr['house_desc'] || !$arr['imgs']){
         header('HTTP/1.1 400 ERROR');
-        echo json_encode ( array('status'=>400, 'msg'=>'params error') );exit();
+        echo json_encode ( array('status'=>400, 'msg'=>'请填写完整的信息') );exit();
     }else{
         $postId = createHouse($arr);
         if($postId){
@@ -177,9 +173,9 @@ function getHouseList($type,$rent,$space,$deposit,$page=1,$pageCount=10){
       $row2['typeCode']     = "HOUSE_RENT";
       $row2['typeName'] = $row['type'];
       $row2['title']    = $row['title'];
-      $row2['space']    = getAreaInfo($row['space']);
+      $row2['space']    = getAreaInfo($row['space'],$row['type']);
       $row2['area']    = $row['area'];
-      $row2['money']    = $row['rent'];
+      $row2['money']    = ceil($row['rent']);
       $row2['img']      = json_decode($row['imgs'])[0];
       $row2['startDate']     = $row['start_date'];
       $list[] = $row2;
@@ -206,8 +202,18 @@ function addCollectStatus($list,$uid){
     return $list;
 }
 
-function getAreaInfo($str){
-    $a = explode('|',$str);
-    return $a[0]."房".$a[1]."厨".$a[2]."卫";
+function getAreaInfo($str,$type){
+    
+    if($type == "拼床位"){
+        return $str."个";
+    }else{
+        $a = explode('|',$str);
+        if($a[1]){
+            return $a[0]."室".$a[1]."厅".$a[2]."卫";
+        }else{
+            return $a[0];
+        }
+    }
+    
 }
 /**************************************demo**********************************************/

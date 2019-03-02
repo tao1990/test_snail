@@ -4,9 +4,12 @@
  *
  */
 header("Access-Control-Allow-Origin: *");
+require_once "../../api/qiniuyun/autoload.php";
+use Qiniu\Auth;
+use Qiniu\Storage\UploadManager;
 require_once("../comm/comm.php");
 require_once("../comm/conn_mysql.php");
-
+error_reporting(E_ALL);
 $ac = empty($_GET['ac'])? '':$_GET['ac'];
 
 
@@ -27,10 +30,10 @@ $ac = empty($_GET['ac'])? '':$_GET['ac'];
  *   )
  * )
  */
+
 if($ac == 'upload'){
-  
+
   $type     = $_FILES['img']['name'];//文件名
-  //print_r($_FILES['img']['name']);die;
   $logFile = fopen("./img.log", "w");
   $txt = json_encode($_FILES)." -- ".date('Y-m-d H:i:s',time())."\n";
   fwrite($logFile, $txt);
@@ -52,12 +55,24 @@ if($ac == 'upload'){
     $target_path = $base_path . $fileName;
     
     if (move_uploaded_file ( $_FILES ['img'] ['tmp_name'], $target_path )) {
-        $array = array (
-        		"status" => 200,
-        		"data" => "/upload/img/".date('Ymd',time())."/".$fileName
-        );
-        header('HTTP/1.1 200 OK');
-        echo json_encode ( $array );exit();
+        
+      $accessKey = 'heBsqtBHd5a2EBYzagzs1ewIpJY9W9qQLVkj0Vbt';
+      $secretKey = 'n0FozFa2dCVtKlgxODsNPoK-koOEuwPJNV9NrhJc';
+      $bucket = 'snail';
+      $auth = new Auth($accessKey, $secretKey);
+      $uptoken = $auth->uploadToken($bucket, null, 3600, $policy);
+      //上传文件的本地路径
+      $filePath = "../../upload/img/".date('Ymd',time())."/".$fileName;
+      $uploadMgr = new UploadManager();
+      $returnName = "upload/img/".date('Ymd',time())."/".$fileName;
+      $uploadMgr->putFile($uptoken, $returnName, $filePath);
+        
+    $array = array (
+    		"status" => 200,
+    		"data" => '/'.$returnName
+    );
+    header('HTTP/1.1 200 OK');
+    echo json_encode ( $array );exit();
     } else {
         $array = array (
         		"status" => 500,
@@ -72,6 +87,8 @@ if($ac == 'upload'){
   }
   
 }
+
+
 
 /**
  * @SWG\Post(path="/app/other/file.php?ac=avatarUpload", tags={"other"},
@@ -118,6 +135,17 @@ if($ac == 'avatarUpload'){
     $target_path = $base_path . $fileName;
     
     if (move_uploaded_file ( $_FILES ['img'] ['tmp_name'], $target_path )) {
+        
+          $accessKey = 'heBsqtBHd5a2EBYzagzs1ewIpJY9W9qQLVkj0Vbt';
+          $secretKey = 'n0FozFa2dCVtKlgxODsNPoK-koOEuwPJNV9NrhJc';
+          $bucket = 'snail';
+          $auth = new Auth($accessKey, $secretKey);
+          $uptoken = $auth->uploadToken($bucket, null, 3600, $policy);
+          //上传文件的本地路径
+          $filePath = "../../upload/avatar/".$fileName;
+          $uploadMgr = new UploadManager();
+          $uploadMgr->putFile($uptoken, "upload/avatar/".$fileName, $filePath);
+      
         $array = array (
         		"status" => 200,
         		"data" => "/upload/avatar/".$fileName
