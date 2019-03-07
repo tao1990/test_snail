@@ -47,7 +47,7 @@ if($ac == 'list'){
  *   summary="创建跨境包裹(OK)",
  *   description="",
  *   @SWG\Parameter(name="body", type="string", required=true, in="formData",
- *     description="body" ,example = "{	'token':'','uid':'','type':'','company':'','logo':'url','company_info':'','company_business':'','company_city':'','contacts_man':'','contacts_mobile':''}"
+ *     description="body" ,example = "{	'token':'','uid':'','type':'','received_type':'','company':'','logo':'url','company_info':'','company_business':'','company_city':'','contacts_man':'','contacts_mobile':''}"
  *   ),
  * @SWG\Response(
  *   response=200,
@@ -67,6 +67,7 @@ if($ac == 'create'){
   if(tokenVerify($token)){
     $arr['uid'] = empty($bodyData['uid'])? 0:$bodyData['uid'];
     $arr['type']  = empty($bodyData['type'])? '':$bodyData['type'];
+    $arr['received_type']  = empty($bodyData['received_type'])? '':$bodyData['received_type'];
     $arr['company'] = empty($bodyData['company'])? '':$bodyData['company'];
     $arr['logo'] = empty($bodyData['logo'])? '':$bodyData['logo'];
     $arr['company_info'] = empty($bodyData['company_info'])? '':$bodyData['company_info'];
@@ -90,8 +91,8 @@ if($ac == 'create'){
     }
     
   }else{
-    header('HTTP/1.1 403 ERROR');
-    echo json_encode ( array('status'=>403, 'msg'=>'error') );exit();
+    header('HTTP/1.1 403 请填写完整信息');
+    echo json_encode ( array('status'=>403, 'msg'=>'请填写完整信息') );exit();
   }
   
 }
@@ -134,6 +135,7 @@ function getPackageByType($type,$page=1,$pageCount=10){
       $row2['id']       = $row['id'];
       $row2['typeCode']     = "PACKAGE";  
       $row2['typeName'] = $row['type'];
+      $row2['receivedType'] = $row['received_type'];
       $row2['title']    = $row['company'];
       $row2['logo']     = $row['logo'];
       $row2['startDate']     = $row['start_date'];

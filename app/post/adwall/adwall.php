@@ -94,8 +94,8 @@ if($ac == 'create'){
     }
     
   }else{
-    header('HTTP/1.1 400 ERROR');
-    echo json_encode ( array('status'=>400, 'msg'=>'error') );exit();
+    header('HTTP/1.1 400 请填写完整信息');
+    echo json_encode ( array('status'=>400, 'msg'=>'请填写完整信息') );exit();
   }
   
 }

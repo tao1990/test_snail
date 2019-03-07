@@ -33,7 +33,7 @@ $type = empty($_GET['typeCode'])? "":$_GET['typeCode'];
 $id = empty($_GET['id'])? 0:$_GET['id'];
 $postId = empty($_GET['postId'])? 0:$_GET['postId'];
 $uid = empty($_GET['uid'])? 0:$_GET['uid'];
-if(($id>0 && in_array($type,array('OCCUP','ADWALL','PACKAGE','BOXSHOP','HOUSE_RENT'))) || $postId>0){
+if(($id>0 && in_array($type,array('OCCUP','ADWALL','PACKAGE','BOXSHOP','HOUSE_RENT','BRING','BUYING','RESTAURANT','TOURISTDEST'))) || $postId>0){
     $info = getDetail($type,$id,$postId,$uid);
     header('HTTP/1.1 200 OK');
     echo json_encode ( array('status'=>200, 'data'=>$info) );exit();

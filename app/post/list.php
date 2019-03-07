@@ -130,6 +130,7 @@ function getPostInfo($id,$type,$status){
           $resList['type']     = "BRING";  
           $resList['typename'] = $list['type'];
           $resList['title']    = $list['title'];
+          $resList['logo']     = $list['logo'];
           $resList['tag1']     = $list['type'];
           $resList['tag2']     = $list['arrive_city'];
           $resList['tag3']     = $list['go_time'];
@@ -142,6 +143,7 @@ function getPostInfo($id,$type,$status){
           $resList['type']     = "BUYING";  
           $resList['typename'] = $list['type'];
           $resList['title']    = $list['title'];
+          $resList['logo']     = $list['logo'];
           $resList['tag1']     = $list['type'];
           $resList['tag2']     = $list['buying_city'];
           $resList['start_date']     = $list['start_date'];
@@ -153,6 +155,7 @@ function getPostInfo($id,$type,$status){
           $resList['type']     = "RESTAURANT";  
           $resList['typename'] = $list['type'];
           $resList['title']    = $list['title'];
+          $resList['logo']     = $list['logo'];
           $resList['tag1']     = $list['region'];
           $resList['tag2']     = $list['business_hour'];
           $resList['start_date']     = $list['start_date'];
@@ -164,7 +167,9 @@ function getPostInfo($id,$type,$status){
           $resList['type']     = "TOURISTDEST";  
           $resList['typename'] = $list['type'];
           $resList['title']    = $list['title'];
+          $resList['logo']     = $list['logo'];
           $resList['tag1']     = json_decode($list['tags']);
+          $resList['tag2']     = $list['filter_tag'];
           $resList['start_date']     = $list['start_date'];
         }
     }
