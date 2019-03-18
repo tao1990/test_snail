@@ -77,7 +77,7 @@ if($ac == 'create'){
     $arr['contacts_mobile'] = empty($bodyData['contacts_mobile'])? '':$bodyData['contacts_mobile'];
     
     if( $arr['uid'] == 0 || !$arr['type'] || !$arr['company'] || !$arr['contacts_man'] || !$arr['contacts_mobile'] || !$arr['logo'] || !$arr['company_info'] || !$arr['company_business'] || !$arr['company_city']){
-        header('HTTP/1.1 400 ERROR');
+        header('HTTP/1.1 400 请填写完整的信息');
         echo json_encode ( array('status'=>400, 'msg'=>'请填写完整的信息') );exit();
     }else{
         $postId = createPackage($arr);

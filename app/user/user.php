@@ -12,8 +12,7 @@ $ac = empty($_GET['ac'])? '':addslashes($_GET['ac']);
  * @SWG\Get(path="/app/user/user.php?ac=getCode", tags={"user"},
  *   summary="获取验证码(OK)",
  *   description="",
- * @SWG\Parameter(name="mobile", type="string", required=true, in="query",example = "79XXX|1XXXX"),
- * @SWG\Parameter(name="type", type="string", required=true, in="query",example = "REG|PWD"),
+ * @SWG\Parameter(name="mobile", type="string", required=true, in="query",example = "79XXX|1XXXX",example = "REG|PWD"),
  * @SWG\Response(
  *   response=200,
  *   description="ok response",
@@ -36,14 +35,13 @@ if($ac == 'getCode'){
     /*临时兼容前端提交的数据start*/
     if($firstNum != 1) $mobile = '7'.$mobile;
     /*临时兼容前端提交的数据start*/
-    
-    if(strlen($mobile)==11 && ($firstNum == 1 || $firstNum == 7)){
+    if(strlen($mobile)==11){
         
         $templateCode = $type=="REG" ? SMS_REG_TEMPLATE_CN:SMS_PWD_TEMPLATE_CN;
         //$templateCode = SMS_REG_TEMPLATE_CN;
         $code = rand(1000,9999);
         updateVerify($mobile,$code);
-        if($firstNum == 7){
+        if($firstNum != 1){
             //$templateCode = SMS_REG_TEMPLATE_RU;
             $templateCode = $type=="REG" ? SMS_REG_TEMPLATE_RU:SMS_PWD_TEMPLATE_RU;
             $mobile = "00".$mobile;
@@ -52,7 +50,6 @@ if($ac == 'getCode'){
         header('HTTP/1.1 400 参数错误');
         echo json_encode ( array('status'=>400, 'msg'=>'参数错误') );exit();
     }
-   
     $res = sendSms($mobile,$templateCode,$code);
     header('HTTP/1.1 200 发送成功,请勿连续点击');
     echo json_encode ( array('status'=>200,'msg'=>'发送成功,请勿连续点击','data'=>$res) );exit();
@@ -94,7 +91,7 @@ if($ac == 'register'){
     $firstNum = substr( $mobile, 0, 1 );
     if($firstNum != 1) $mobile = '7'.$mobile;
     /*临时兼容前端提交的数据start*/
-    
+
     $verify = checkVerify($mobile,$verifyCode);
   
     if($verify && $password1 && $password2 && ($password1 == $password2) && $mobile && $type){
@@ -118,8 +115,8 @@ if($ac == 'register'){
             echo json_encode ( array('status'=>200, 'msg'=>'注册成功','data'=>$resArr) );exit();
             
         }else{
-            header('HTTP/1.1 500 注册失败');
-            echo json_encode ( array('status'=>500, 'msg'=>'注册失败') );exit();
+            header('HTTP/1.1 500 改号码已注册');
+            echo json_encode ( array('status'=>500, 'msg'=>'改号码已注册') );exit();
         }
         
     }else{
@@ -154,6 +151,10 @@ if($ac == 'login'){
     $bodyData = json_decode($bodyData,true);
     $mobile = $bodyData['mobile'];
     $password = $bodyData['password'];
+	/*临时兼容前端提交的数据start*/
+    $firstNum = substr( $mobile, 0, 1 );
+    if($firstNum != 1) $mobile = '7'.$mobile;
+    /*临时兼容前端提交的数据start*/
     $check = checkUser($mobile,$password);
     if($check['uid']){
         $token = tokenCreate($check['uid']);
@@ -166,10 +167,10 @@ if($ac == 'login'){
             'sex'=>$check['sex'],
             'bonusInfo'=>$bonusInfo
         );
-        header('HTTP/1.1 200 OK');
+        header('HTTP/1.1 200 登录成功');
         echo json_encode ( array('status'=>200,'msg'=>'登录成功', 'data'=>$resArr) );exit();
     }else{
-        header('HTTP/1.1 403 error');
+        header('HTTP/1.1 403 验证失败');
         echo json_encode ( array('status'=>403, 'msg'=>'验证失败') );exit();
     }
 }
@@ -203,7 +204,10 @@ if($ac == 'forgetPassword'){
     @$password1 = $bodyData['password1'];
     @$password2 = $bodyData['password2'];
     @$verifyCode = $bodyData['verifyCode'];
-
+	/*临时兼容前端提交的数据start*/
+    $firstNum = substr( $mobile, 0, 1 );
+    if($firstNum != 1) $mobile = '7'.$mobile;
+    /*临时兼容前端提交的数据start*/
     $verify = checkVerify($mobile,$verifyCode);
 
     if($verify && $password1 && $password2 && ($password1 == $password2) && $mobile && $type){
@@ -264,17 +268,17 @@ if($ac == 'changePassword'){
         $arr = array('uid'=>$uid,'password'=>$password2);
         $change = changePwByUid($arr);
         if($change){
-            header('HTTP/1.1 200 OK');
+            header('HTTP/1.1 200 密码修改成功');
             echo json_encode ( array('status'=>200, 'msg'=>'密码修改成功') );exit();
             
         }else{
-            header('HTTP/1.1 500  failed');
-            echo json_encode ( array('status'=>500, 'msg'=>'failed') );exit();
+            header('HTTP/1.1 500  修改失败');
+            echo json_encode ( array('status'=>500, 'msg'=>'修改失败') );exit();
         }
         
     }else{
-        header('HTTP/1.1 400 params error');
-        echo json_encode ( array('status'=>400, 'msg'=>'params error') );exit();
+        header('HTTP/1.1 400 请填写完整的信息');
+        echo json_encode ( array('status'=>400, 'msg'=>'请填写完整的信息') );exit();
     }
 }
 

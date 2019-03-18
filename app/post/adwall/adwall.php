@@ -78,8 +78,8 @@ if($ac == 'create'){
     $arr['contacts_mobile'] = empty($bodyData['contacts_mobile'])? '':$bodyData['contacts_mobile'];
     
     if($arr['uid'] == 0 || !$arr['type'] || !$arr['title'] || !$arr['content'] || !$arr['contacts_man'] || !$arr['contacts_mobile']){
-        header('HTTP/1.1 400 ERROR');
-        echo json_encode ( array('status'=>400, 'msg'=>'error') );exit();
+        header('HTTP/1.1 400 请填写完整信息');
+        echo json_encode ( array('status'=>400, 'msg'=>'请填写完整信息') );exit();
     }else{
         $postId = createAdwall($arr);
         if($postId){
@@ -94,8 +94,8 @@ if($ac == 'create'){
     }
     
   }else{
-    header('HTTP/1.1 400 请填写完整信息');
-    echo json_encode ( array('status'=>400, 'msg'=>'请填写完整信息') );exit();
+    header('HTTP/1.1 400 提交失败！');
+    echo json_encode ( array('status'=>400, 'msg'=>'提交失败！') );exit();
   }
   
 }

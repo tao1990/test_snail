@@ -100,7 +100,7 @@ function snail_log($bodyData,$name="log"){
         $logName = "/$name.log";
     }
     $logFile = fopen($_SERVER['DOCUMENT_ROOT'].$logName, "a+");
-    $txt = date('Y-m-d H:i:s',time())."--- $bodyData\r\n";
+    $txt = date('Y-m-d H:i:s',time())."---".$_SERVER["PHP_SELF"].$_SERVER["QUERY_STRING"]."--- $bodyData\r\n";
     fwrite($logFile, $txt);
     fclose($logFile); 
 }

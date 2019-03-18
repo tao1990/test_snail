@@ -33,15 +33,15 @@ if($ac == 'suggest'){
     if($suggest && $contact_man && $contact_mobile){
         $res = doSuggest($suggest,$contact_man,$contact_mobile,$wechat);
         if($res){
-            header('HTTP/1.1 200 ok');
-            echo json_encode ( array('status'=>200, 'msg'=>'ok') );exit();
+            header('HTTP/1.1 200 提交成功！');
+            echo json_encode ( array('status'=>200, 'msg'=>'提交成功！') );exit();
         }else{
-            header('HTTP/1.1 400 error');
-            echo json_encode ( array('status'=>400, 'msg'=>'error') );exit();
+            header('HTTP/1.1 400 提交失败！');
+            echo json_encode ( array('status'=>400, 'msg'=>'提交失败！') );exit();
         }
     }else{
-        header('HTTP/1.1 400 error');
-        echo json_encode ( array('status'=>400, 'msg'=>'error') );exit();
+        header('HTTP/1.1 400 请填写完整信息');
+        echo json_encode ( array('status'=>400, 'msg'=>'请填写完整信息') );exit();
     }
     
 }

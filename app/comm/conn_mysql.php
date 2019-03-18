@@ -2,12 +2,12 @@
 
 //数据库连接信息
 $cfg_dbtype = 'mysql';
-$cfg_dbhost = '10.10.20.43';
-//$cfg_dbhost = '10.39.58.96';
+//$cfg_dbhost = '10.10.20.43';
+$cfg_dbhost = '10.39.58.96';
 $cfg_dbname = 'snail';
 $cfg_dbuser = 'root';
-$cfg_dbpwd = 'root';
-//$cfg_dbpwd = 'luehekeji123';
+//$cfg_dbpwd = 'root';
+$cfg_dbpwd = 'luehekeji123';
 $cfg_dbprefix = 'snail_';
 $cfg_db_language = 'utf8';
 

@@ -98,8 +98,8 @@ if($ac == 'create'){
     }
     
   }else{
-    header('HTTP/1.1 403 请填写完整信息');
-    echo json_encode ( array('status'=>403, 'msg'=>'请填写完整信息') );exit();
+    header('HTTP/1.1 403 提交失败');
+    echo json_encode ( array('status'=>403, 'msg'=>'提交失败') );exit();
   }
   
 }
